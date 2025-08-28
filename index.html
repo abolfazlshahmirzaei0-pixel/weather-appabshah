@@ -1,480 +1,162 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اپلیکیشن آب و هوای ایران</title>
-    <style>
-        @font-face {
-            font-family: 'Vazirmatn';
-            src: url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir-Regular.eot');
-            src: url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir-Regular.eot?#iefix') format('embedded-opentype'),
-                 url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir-Regular.woff2') format('woff2'),
-                 url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir-Regular.woff') format('woff'),
-                 url('https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir-Regular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-
-        body {
-            font-family: 'Vazirmatn', sans-serif;
-            background: radial-gradient(circle at 10% 20%, rgb(49, 114, 218) 0%, rgb(120, 210, 248) 90.1%);
-            color: #e0f7ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 25px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            width: 100%;
-            max-width: 650px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        #datetime {
-            font-size: 1.1em;
-            margin-bottom: 30px;
-            color: #d1e2e6;
-        }
-
-        .search-box {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .search-box select, .search-box button {
-            padding: 12px 10px;
-            border-radius: 25px;
-            border: none;
-            outline: none;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 1rem;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 5px;
-            flex-grow: 1;
-            transition: all 0.3s ease;
-        }
-
-        .search-box button {
-            background-color: #e6fff2;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        @media (min-width: 600px) {
-            .search-box button {
-                width: auto;
-            }
-        }
-
-        .search-box button:hover {
-            background-color: #c6f0d9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .weather-info {
-            margin-top: 20px;
-        }
-
-        .weather-info h2 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .temp {
-            font-size: 5em;
-            margin: 10px 0;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        .weather-desc {
-            font-size: 1.8em;
-            margin-bottom: 5px;
-            color: #c6f0d9;
-        }
-
-        .humidity, .wind-speed {
-            font-size: 1.2em;
-            margin: 5px 0;
-            color: #d1e2e6;
-        }
-
-        #forecast-container {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            margin-top: 30px;
-            width: 100%;
-            max-width: 650px;
-        }
-        
-        .forecast-day {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 15px;
-            margin: 5px;
-            flex-basis: 18%;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .forecast-day:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
-
-        .forecast-day img {
-            width: 50px;
-            height: 50px;
-        }
-
-        #comments-section {
-            background-color: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 25px;
-            padding: 30px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            width: 100%;
-            max-width: 650px;
-            margin-top: 20px;
-        }
-
-        #commentForm input, #commentForm textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.8);
-            color: #333;
-            font-family: 'Vazirmatn', sans-serif;
-            text-align: right;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        #commentForm input:focus, #commentForm textarea:focus {
-            background: #fff;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-        }
-
-        #commentForm button {
-            width: 100%;
-            padding: 12px;
-            background-color: #b3e0ff;
-            color: #555;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-family: 'Vazirmatn', sans-serif;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        #commentForm button:hover {
-            background-color: #80c4ff;
-            transform: translateY(-2px);
-        }
-
-        #commentList {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-            text-align: right;
-        }
-
-        #commentList li {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        #commentList li:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-        }
-
-        .icon {
-            width: 80px;
-            height: 80px;
-            margin: 10px auto;
-        }
-
-        .footer-info {
-            font-size: 0.9em;
-            margin-top: 25px;
-            color: #c6f0d9;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فهرست شهرها و استان‌های ایران</title>
+  <style>
+    body { font-family: Tahoma, sans-serif; direction: rtl; margin: 20px; background: #f5f5f5; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #eee; }
+    input, select, textarea { padding: 6px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    .filter-container { margin-bottom: 15px; }
+    .weather { margin-top: 10px; }
+    footer { margin-top: 30px; font-size: 12px; color: #555; text-align: center; }
+    button { padding: 8px 12px; cursor: pointer; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>اپلیکیشن آب و هوای ایران</h1>
-        <p id="datetime"></p>
-        <div class="search-box">
-            <select id="provinceSelect"></select>
-            <select id="citySelect"></select>
-            <button id="searchBtn">جستجو</button>
-        </div>
-        <div class="weather-info">
-            <h2 id="cityName"></h2>
-            <img id="weatherIcon" class="icon" src="" alt="Weather Icon" style="display: none;">
-            <p id="temperature" class="temp"></p>
-            <p id="weatherDescription" class="weather-desc"></p>
-            <p id="humidity" class="humidity"></p>
-            <p id="windSpeed" class="wind-speed"></p>
-        </div>
-        <div id="forecast-container"></div>
-    </div>
 
-    <div id="comments-section">
-        <h3>نظرات</h3>
-        <ul id="commentList"></ul>
-        <form id="commentForm">
-            <input type="text" id="name" placeholder="نام شما" required>
-            <textarea id="message" placeholder="نظر خود را بنویسید..." rows="4" required></textarea>
-            <button type="submit">ارسال نظر</button>
-        </form>
-    </div>
+<h1>فهرست شهرها و استان‌های ایران</h1>
 
-    <div class="footer-info">
-        <p>این سایت توسط ابوالفضل شاهمیرزایی در سال ۱۴۰۴ ساخته شده است.</p>
-        <p>اطلاعات آب و هوا از API وبسایت <a href="https://openweathermap.org" target="_blank" style="color:#d1e2e6; text-decoration: none;">OpenWeatherMap.org</a> دریافت می‌شود.</p>
-    </div>
+<div class="filter-container">
+  <label for="provinceFilter">انتخاب استان:</label>
+  <select id="provinceFilter">
+    <option value="">همه استان‌ها</option>
+  </select>
 
-    <script>
-        const API_KEY = '4a36a8bc0a92a01b510d1b68f862f292';
-        const searchBtn = document.getElementById("searchBtn");
-        const provinceSelect = document.getElementById("provinceSelect");
-        const citySelect = document.getElementById("citySelect");
-        const cityName = document.getElementById("cityName");
-        const temperature = document.getElementById("temperature");
-        const weatherDescription = document.getElementById("weatherDescription");
-        const humidity = document.getElementById("humidity");
-        const windSpeed = document.getElementById("windSpeed");
-        const weatherIcon = document.getElementById("weatherIcon");
-        const forecastContainer = document.getElementById("forecast-container");
+  <label for="citySearch">جستجوی شهر:</label>
+  <input type="text" id="citySearch" placeholder="نام شهر را وارد کنید...">
+</div>
 
-        const provincesData = {
-            "آذربایجان شرقی": ["تبریز", "مراغه", "مرند", "اهر", "میانه", "بناب", "شبستر", "سهند", "جلفا", "ملکان", "سراب", "هشترود", "آذرشهر", "اسکو", "ورزقان", "کلیبر", "هریس", "بستان‌آباد", "خواجه"],
-            "آذربایجان غربی": ["ارومیه", "خوی", "مهاباد", "بوکان", "میاندوآب", "نقده", "سلماس", "پیرانشهر", "اشنویه", "سردشت", "ماکو", "تکاب", "شاهین‌دژ", "سرو", "چالدران", "قره‌ضیاالدین", "سیه‌چشمه", "پلدشت"],
-            "اردبیل": ["اردبیل", "پارس‌آباد", "مشگین‌شهر", "خلخال", "گرمی", "بیله‌سوار", "نمین", "کوثر", "نیر", "سرعین", "جعفرآباد", "کوثر", "اصلاندوز", "کوراییم"],
-            "اصفهان": ["اصفهان", "کاشان", "خمینی‌شهر", "نجف‌آباد", "فولادشهر", "شاهین‌شهر", "شهرضا", "زرین‌شهر", "فلاورجان", "آران و بیدگل", "گلپایگان", "خوانسار", "سمیرم", "نائین", "نطنز", "مبارکه", "فریدون‌شهر", "داران"],
-            "البرز": ["کرج", "فردیس", "کمال‌شهر", "نظرآباد", "محمدشهر", "ماهدشت", "هشتگرد", "اشتهارد", "طالقان", "ساوجبلاغ", "فردیس", "مشکین‌دشت", "کوهسار"],
-            "ایلام": ["ایلام", "دهلران", "ایوان", "آبدانان", "دره‌شهر", "مهران", "سرابله", "چوار", "بدره", "آسمان‌آباد", "صیدخانی", "لومار", "مورموری"],
-            "بوشهر": ["بوشهر", "برازجان", "گناوه", "کنگان", "جم", "خورموج", "عسلویه", "دیلم", "دلوار", "دیر", "کاکی", "ریگ", "شبانکاره"],
-            "تهران": ["تهران", "اسلام‌شهر", "شهریار", "قدس", "ملارد", "پاکدشت", "ورامین", "رباط‌کریم", "قرچک", "لواسان", "فیروزکوه", "بومهن", "اندیشه", "ری", "دماوند", "پرند", "پردیس", "نسیم‌شهر"],
-            "چهارمحال و بختیاری": ["شهرکرد", "بروجن", "فرخ‌شهر", "فارسان", "هفشجان", "لردگان", "سامان", "کاشان", "اردل", "بلداجی", "کیار", "ناغان", "سودجان"],
-            "خراسان جنوبی": ["بیرجند", "قائن", "طبس", "فردوس", "نهبندان", "سرایان", "خوسف", "درمیان", "سربیشه", "بشرویه", "آرین‌شهر", "سه قلعه", "اسدیه", "حاجی‌آباد", "دیهوک"],
-            "خراسان رضوی": ["مشهد", "نیشابور", "سبزوار", "تربت حیدریه", "کاشمر", "قوچان", "تربت جام", "چناران", "سرخس", "گناباد", "فریمان", "خواف", "بردسکن", "تایباد", "کلات", "فریمان", "طبس", "درگز"],
-            "خراسان شمالی": ["بجنورد", "شیروان", "اسفراین", "آشخانه", "جاجرم", "مانه و سملقان", "راز", "گرمه", "بام", "صفی‌آباد", "راز", "تیتکانلو", "پیش‌قلعه"],
-            "خوزستان": ["اهواز", "دزفول", "آبادان", "اندیمشک", "ماهشهر", "خرمشهر", "ایذه", "بهبهان", "شوشتر", "مسجد سلیمان", "رامهرمز", "شادگان", "باوی", "هندیجان", "شوش", "سوسنگرد", "ملاثانی", "حمیدیه"],
-            "زنجان": ["زنجان", "ابهر", "خرمدره", "قیدار", "سلطانیه", "صایین‌قلعه", "هیدج", "سجاس", "ماهنشان", "دندی", "زری آباد", "زرین‌رود", "آب‌بر"],
-            "سمنان": ["سمنان", "شاهرود", "دامغان", "گرمسار", "مهدی‌شهر", "سرخه", "بسطام", "میامی", "شهمیرزاد", "ایوانکی", "دیباج", "کلاته", "مجین"],
-            "سیستان و بلوچستان": ["زاهدان", "زابل", "ایرانشهر", "چابهار", "سراوان", "خاش", "نیک‌شهر", "کنارک", "مهرستان", "سرباز", "راسک", "دشتیاری", "قصرقند", "فنوج", "زرآباد", "زهک", "بزمان", "بنت"],
-            "فارس": ["شیراز", "مرودشت", "جهرم", "کازرون", "فسا", "داراب", "فیروزآباد", "لار", "آباده", "نی‌ریز", "اقلید", "گراش", "استهبان", "لامرد", "سپیدان", "ممسنی", "بوانات", "کوار"],
-            "قزوین": ["قزوین", "تاکستان", "الوند", "آبیک", "محمدیه", "بویین زهرا", "شال", "اقبالیه", "آوج", "اسفرورین", "سیردان", "ضیاءآباد", "الموت"],
-            "قم": ["قم", "جعفریه", "کهک", "دستجرد", "قنوات", "سلفچگان", "خلجستان", "مزرعه", "خورآباد", "سفیدشهر", "فردو", "قنوات"],
-            "کردستان": ["سنندج", "سقز", "مریوان", "بانه", "قروه", "کامیاران", "بیجار", "دهگلان", "دیواندره", "سروآباد", "سروآباد", "دهگلان", "قروه"],
-            "کرمان": ["کرمان", "سیرجان", "رفسنجان", "جیرفت", "بم", "زرند", "کهنوج", "بافت", "بردسیر", "شهربابک", "انار", "کوهبنان", "راور", "رودبار جنوب", "عنبرآباد", "ارزوئیه", "فاریاب"],
-            "کرمانشاه": ["کرمانشاه", "اسلام‌آباد غرب", "جوانرود", "کنگاور", "سرپل ذهاب", "سنقر", "هرسین", "صحنه", "قصر شیرین", "پاوه", "روانسر", "دالاهو", "کوزران", "سومار"],
-            "کهگیلویه و بویراحمد": ["یاسوج", "گچساران", "دهدشت", "دوگنبدان", "سی‌سخت", "چرام", "لنده", "بهمئی", "لیکک", "باشت", "پاتاوه", "مارگون"],
-            "گلستان": ["گرگان", "گنبد کاووس", "علی‌آباد کتول", "بندر ترکمن", "آزادشهر", "کردکوی", "مینودشت", "کلاله", "رامیان", "آق‌قلا", "مراوه‌تپه", "گالیکش", "بندر گز"],
-            "گیلان": ["رشت", "بندرانزلی", "لاهیجان", "لنگرود", "تالش", "آستانه اشرفیه", "صومعه‌سرا", "فومن", "رودسر", "سیاهکل", "املش", "رودبار", "کیاشهر", "رضوان‌شهر", "کلاچای", "ماسوله"],
-            "لرستان": ["خرم‌آباد", "بروجرد", "دورود", "کوهدشت", "الیگودرز", "نورآباد", "ازنا", "پلدختر", "الشتر", "کونانی", "چگنی", "معمولان", "درب گنبد"],
-            "مازندران": ["ساری", "بابل", "آمل", "قائم‌شهر", "بهشهر", "چالوس", "بابلسر", "نوشهر", "تنکابن", "نور", "محمودآباد", "رامسر", "جویبار", "فریدون‌کنار", "نکا", "بابلسر", "سوادکوه", "گلوگاه"],
-            "مرکزی": ["اراک", "ساوه", "خمین", "محلات", "دلیجان", "تفرش", "شازند", "کمیجان", "فراهان", "آشتیان", "زرندیه", "غرق‌آباد", "آوه"],
-            "هرمزگان": ["بندرعباس", "میناب", "بندرلنگه", "قشم", "کیش", "جاسک", "رودان", "بستک", "حاجی‌آباد", "پارسیان", "سیریک", "بستک", "لنگه", "بندر چارک", "بندر خمیر"],
-            "همدان": ["همدان", "ملایر", "نهاوند", "تویسرکان", "اسدآباد", "کبودرآهنگ", "بهار", "رزن", "فامنین", "قروه درجزین", "سفیدکمر", "فامنین", "سامن", "جوکار"],
-            "یزد": ["یزد", "میبد", "اردکان", "تفت", "بافق", "ابرکوه", "مهریز", "اشکذر", "زیرکوه", "هرات", "بافق", "اشکذر", "احمدآباد", "نیر"]
-        };
-        
-        function populateProvinces() {
-            provinceSelect.innerHTML = `<option value="">استان...</option>`;
-            for (let province in provincesData) {
-                let option = document.createElement("option");
-                option.text = province;
-                option.value = province;
-                provinceSelect.appendChild(option);
-            }
-        }
+<table id="cityTable">
+  <thead>
+    <tr>
+      <th>استان</th>
+      <th>شهر</th>
+      <th>دمای فعلی (°C)</th>
+      <th>وضعیت آب و هوا</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-        function populateCities() {
-            const selectedProvince = provinceSelect.value;
-            citySelect.innerHTML = `<option value="">شهر...</option>`;
-            
-            if (selectedProvince && provincesData[selectedProvince]) {
-                provincesData[selectedProvince].forEach(city => {
-                    let option = document.createElement("option");
-                    option.text = city;
-                    option.value = city;
-                    citySelect.appendChild(option);
-                });
-            }
-        }
+<h2>ثبت نظر</h2>
+<form id="commentForm">
+  <label for="name">نام:</label>
+  <input type="text" id="name" required>
+  
+  <label for="comment">نظر شما:</label>
+  <textarea id="comment" required></textarea>
+  
+  <button type="submit">ارسال نظر</button>
+</form>
 
-        provinceSelect.addEventListener("change", populateCities);
-        
-        async function getWeatherData(city) {
-            try {
-                const PROXY_URL = 'https://api.codetabs.com/v1/proxy/?quest=';
-                
-                // Fetch current weather
-                const currentWeatherUrl = `${PROXY_URL}${encodeURIComponent(`https://api.openweathermap.org/data/2.5/weather?q=${city},IR&appid=${API_KEY}&units=metric&lang=fa`)}`;
-                const currentWeatherResponse = await fetch(currentWeatherUrl);
-                
-                if (!currentWeatherResponse.ok) {
-                    throw new Error(`خطای دریافت آب و هوا: ${currentWeatherResponse.statusText}`);
-                }
-                const currentWeatherData = await currentWeatherResponse.json();
-                displayCurrentWeather(currentWeatherData);
+<div id="commentsList"></div>
 
-                // Fetch 5-day forecast
-                const forecastUrl = `${PROXY_URL}${encodeURIComponent(`https://api.openweathermap.org/data/2.5/forecast?q=${city},IR&appid=${API_KEY}&units=metric&lang=fa`)}`;
-                const forecastResponse = await fetch(forecastUrl);
-                if (!forecastResponse.ok) {
-                    throw new Error(`خطای دریافت پیش‌بینی: ${forecastResponse.statusText}`);
-                }
-                const forecastData = await forecastResponse.json();
-                displayForecast(forecastData);
+<footer>
+  ساخته شده توسط ابوالفضل شاهمیرزایی - سال ۱۴۰۴ | ساعت: <span id="currentTime"></span>
+</footer>
 
-            } catch (error) {
-                console.error("Failed to fetch weather data:", error);
-                alert(`مشکل در دریافت اطلاعات آب و هوا: ${error.message}`);
-                clearWeatherInfo();
-            }
-        }
+<script>
+const apiKey = "64231bdfdeaa541bbee0be4c1868c100";
 
-        function displayCurrentWeather(data) {
-            cityName.textContent = `${data.name}`;
-            temperature.textContent = `${Math.round(data.main.temp)}°C`;
-            weatherDescription.textContent = data.weather[0].description;
-            humidity.textContent = `رطوبت: ${data.main.humidity}%`;
-            windSpeed.textContent = `سرعت باد: ${data.wind.speed} متر بر ثانیه`;
+// بارگذاری JSON شهرها و استان‌ها
+let cities = [];
+let provinces = {};
+fetch('irancities.json')
+  .then(res => res.json())
+  .then(data => {
+    cities = data.cities;
+    provinces = data.provinces.reduce((acc, p) => { acc[p.id] = p.name; return acc; }, {});
+    populateProvinceFilter();
+    displayCities();
+  });
 
-            const iconCode = data.weather[0].icon;
-            weatherIcon.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-            weatherIcon.style.display = "block";
-        }
+// پر کردن فیلتر استان
+function populateProvinceFilter() {
+  const select = document.getElementById('provinceFilter');
+  for (let id in provinces) {
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = provinces[id];
+    select.appendChild(option);
+  }
+}
 
-        function displayForecast(data) {
-            forecastContainer.innerHTML = '';
-            const dailyData = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+// نمایش شهرها در جدول
+function displayCities() {
+  const tbody = document.querySelector('#cityTable tbody');
+  tbody.innerHTML = '';
+  const search = document.getElementById('citySearch').value.trim();
+  const provinceId = document.getElementById('provinceFilter').value;
 
-            dailyData.forEach(day => {
-                const date = new Date(day.dt * 1000);
-                const dayName = date.toLocaleDateString('fa-IR', { weekday: 'short' });
-                const iconCode = day.weather[0].icon;
-                const temp = Math.round(day.main.temp);
-                const description = day.weather[0].description;
-                
-                const dayElement = document.createElement('div');
-                dayElement.classList.add('forecast-day');
-                dayElement.innerHTML = `
-                    <p>${dayName}</p>
-                    <img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
-                    <p>${temp}°C</p>
-                    <p>${description}</p>
-                `;
-                forecastContainer.appendChild(dayElement);
-            });
-        }
+  let filtered = cities.filter(city => {
+    return (!provinceId || city.ostan == provinceId) &&
+           (!search || city.name.includes(search));
+  });
 
-        function clearWeatherInfo() {
-            cityName.textContent = "";
-            temperature.textContent = "";
-            weatherDescription.textContent = "";
-            humidity.textContent = "";
-            windSpeed.textContent = "";
-            weatherIcon.style.display = "none";
-            forecastContainer.innerHTML = "";
-        }
+  filtered.forEach(city => {
+    const tr = document.createElement('tr');
+    const tdProvince = document.createElement('td');
+    tdProvince.textContent = provinces[city.ostan];
+    const tdCity = document.createElement('td');
+    tdCity.textContent = city.name;
+    const tdTemp = document.createElement('td');
+    const tdWeather = document.createElement('td');
+    tdTemp.textContent = 'در حال بارگذاری...';
+    tdWeather.textContent = 'در حال بارگذاری...';
 
-        searchBtn.addEventListener("click", () => {
-            const selectedCity = citySelect.value;
-            if (selectedCity) {
-                getWeatherData(selectedCity);
-            } else {
-                alert("لطفاً یک شهر را انتخاب کنید.");
-            }
-        });
+    tr.appendChild(tdProvince);
+    tr.appendChild(tdCity);
+    tr.appendChild(tdTemp);
+    tr.appendChild(tdWeather);
+    tbody.appendChild(tr);
 
-        const commentForm = document.getElementById("commentForm");
-        const commentList = document.getElementById("commentList");
-        const colors = ["rgba(255, 255, 255, 0.15)", "rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.25)"];
+    // گرفتن اطلاعات آب و هوا
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.name},IR&units=metric&appid=${apiKey}`)
+      .then(res => res.json())
+      .then(w => {
+        tdTemp.textContent = w.main ? w.main.temp.toFixed(1) : '-';
+        tdWeather.textContent = w.weather ? w.weather[0].description : '-';
+      })
+      .catch(() => {
+        tdTemp.textContent = '-';
+        tdWeather.textContent = '-';
+      });
+  });
+}
 
-        function loadComments() {
-            let comments = JSON.parse(localStorage.getItem("comments") || "[]");
-            commentList.innerHTML = "";
-            comments.forEach((c, i) => {
-                let li = document.createElement("li");
-                li.textContent = `${c.name}: ${c.message}`;
-                li.style.background = colors[i % colors.length];
-                commentList.appendChild(li);
-            });
-        }
+// فیلتر و جستجو
+document.getElementById('provinceFilter').addEventListener('change', displayCities);
+document.getElementById('citySearch').addEventListener('input', displayCities);
 
-        commentForm.addEventListener("submit", e => {
-            e.preventDefault();
-            let name = document.getElementById("name").value.trim();
-            let message = document.getElementById("message").value.trim();
-            if (name && message) {
-                let comments = JSON.parse(localStorage.getItem("comments") || "[]");
-                comments.unshift({ name, message });
-                localStorage.setItem("comments", JSON.stringify(comments));
-                commentForm.reset();
-                loadComments();
-            }
-        });
+// ساعت زنده
+function updateTime() {
+  const now = new Date();
+  document.getElementById('currentTime').textContent = now.toLocaleString('fa-IR');
+}
+setInterval(updateTime, 1000);
+updateTime();
 
-        loadComments();
+// فرم نظرات
+const commentsList = document.getElementById('commentsList');
+document.getElementById('commentForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const comment = document.getElementById('comment').value.trim();
+  if (name && comment) {
+    const div = document.createElement('div');
+    div.style.borderTop = '1px solid #ccc';
+    div.style.padding = '5px';
+    div.innerHTML = `<strong>${name}</strong>: ${comment}`;
+    commentsList.prepend(div);
+    this.reset();
+  }
+});
+</script>
 
-        function updateDateTime() {
-            const now = new Date();
-            const date = now.toLocaleDateString('fa-IR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById("datetime").textContent = `${date} - ${time}`;
-        }
-
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
-
-        populateProvinces();
-        populateCities();
-    </script>
 </body>
 </html>
