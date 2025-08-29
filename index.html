@@ -1,162 +1,1005 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>فهرست شهرها و استان‌های ایران</title>
-  <style>
-    body { font-family: Tahoma, sans-serif; direction: rtl; margin: 20px; background: #f5f5f5; }
-    h1 { text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #eee; }
-    input, select, textarea { padding: 6px; margin: 5px 0; width: 100%; box-sizing: border-box; }
-    .filter-container { margin-bottom: 15px; }
-    .weather { margin-top: 10px; }
-    footer { margin-top: 30px; font-size: 12px; color: #555; text-align: center; }
-    button { padding: 8px 12px; cursor: pointer; }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>آب‌و‌هوای ایران — استان‌ها و شهرها</title>
+<style>
+:root{
+  --bg1:linear-gradient(135deg,#e8f0ff 0%, #f5f7fb 100%);
+  --card:#ffffff;
+  --accent:#0f62fe;
+  --muted:#6b7280;
+}
+html,body{height:100%}
+body{
+  margin:0;font-family: Vazirmatn, Tahoma, sans-serif; background:var(--bg1); color:#111; padding:20px;
+}
+.container{max-width:1100px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg, #87ceeb, #4682b4);color:#fff;padding:18px;border-radius:12px;box-shadow:0 10px 30px rgba(16,24,40,0.12)}
+.header h1{margin:0;font-size:1.2rem}
+.header .meta{font-size:0.9rem;opacity:0.95}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 8px 22px rgba(16,24,40,0.06)}
+.controls .card{flex:1;min-width:260px}
+select,input,button,textarea{font-family: Vazirmatn, Tahoma, sans-serif}
+select,input[type="text"]{padding:10px;border-radius:10px;border:1px solid #e6e9ef;min-width:220px}
+button{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
+.button-muted{background:#eef2ff;color:#0b3f8a}
+.layout{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:16px}
+@media (max-width:980px){ .layout{grid-template-columns:1fr} .rightCol{order:-1} }
+.infoRow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.weatherBox{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fbfdff,#ffffff);box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+.weatherRow{display:flex;align-items:center;gap:12px}
+.small{font-size:0.9rem;color:var(--muted)}
+.footer{margin-top:20px;padding:14px;text-align:center;color:#fff;border-radius:10px;background:linear-gradient(90deg,#133d7a,#1767c9)}
+.formRow{display:flex;flex-direction:column;gap:8px}
+.commentItem{border-bottom:1px dashed #eef2ff;padding:8px 0}
+.note{font-size:0.85rem;color:var(--muted);margin-top:8px}
+</style>
 </head>
 <body>
+<div class="container">
+  <header class="header">
+    <div>
+      <h1>آب‌و‌هوای ایران — استان‌ها و شهرها</h1>
+    </div>
+    <div class="meta">
+      <div id="liveDateTime">در حال بارگذاری...</div>
+      <div class="small">سازنده: ابوالفضل شاهمیرزایی — سال ۱۴۰۴</div>
+    </div>
+  </header>
 
-<h1>فهرست شهرها و استان‌های ایران</h1>
+  <div class="controls">
+    <div class="card">
+      <div class="infoRow">
+        <label class="small"><strong>استان</strong></label>
+        <label class="small"><strong>شهر</strong></label>
+      </div>
 
-<div class="filter-container">
-  <label for="provinceFilter">انتخاب استان:</label>
-  <select id="provinceFilter">
-    <option value="">همه استان‌ها</option>
-  </select>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+        <select id="provinceSelect" aria-label="انتخاب استان">
+          <option value="">انتخاب استان...</option>
+        </select>
 
-  <label for="citySearch">جستجوی شهر:</label>
-  <input type="text" id="citySearch" placeholder="نام شهر را وارد کنید...">
+        <select id="citySelect" aria-label="انتخاب شهر">
+          <option value="">ابتدا استان را انتخاب کنید</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="small"><strong>پیش‌بینی ۵ روزه</strong></div>
+        <div id="weatherBox" class="weatherBox small">هیچ شهر انتخاب نشده است.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <main>
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">جستجو سریع</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="quickSearch" type="text" placeholder="نام شهر را تایپ کنید (فیلد انتخابی پیدا شود)">
+          <button id="btnFind" class="button-muted">یافتن</button>
+          <button id="btnReset">تنظیم مجدد</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 8px 0">دیتا درون فایل (۳۱ استان × ۲۰ شهر)</h3>
+      </div>
+    </main>
+
+    <aside class="rightCol">
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">نظرات کاربران</h3>
+        <form id="commentForm" class="formRow">
+          <input id="commentName" placeholder="نام شما" required />
+          <textarea id="commentText" rows="4" placeholder="نظر شما..." required></textarea>
+          <div style="display:flex;gap:8px">
+            <button type="submit">ارسال نظر</button>
+            <button type="button" id="clearComments" class="button-muted">پاک کردن</button>
+          </div>
+        </form>
+        <div id="comments" class="note" style="margin-top:12px">نظرات بارگذاری می‌شود...</div>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    ساخته شده توسط: ابوالفضل شاهمیرزایی — سال ۱۴۰۴ • اطلاعات آب‌و‌هوا: OpenWeatherMap
+  </footer>
 </div>
 
-<table id="cityTable">
-  <thead>
-    <tr>
-      <th>استان</th>
-      <th>شهر</th>
-      <th>دمای فعلی (°C)</th>
-      <th>وضعیت آب و هوا</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<h2>ثبت نظر</h2>
-<form id="commentForm">
-  <label for="name">نام:</label>
-  <input type="text" id="name" required>
-  
-  <label for="comment">نظر شما:</label>
-  <textarea id="comment" required></textarea>
-  
-  <button type="submit">ارسال نظر</button>
-</form>
-
-<div id="commentsList"></div>
-
-<footer>
-  ساخته شده توسط ابوالفضل شاهمیرزایی - سال ۱۴۰۴ | ساعت: <span id="currentTime"></span>
-</footer>
-
 <script>
-const apiKey = "64231bdfdeaa541bbee0be4c1868c100";
+/* ===== API key (شما فرستادید) ===== */
+const OPENWEATHER_API_KEY = "64231bdfdeaa541bbee0be4c1868c100";
 
-// بارگذاری JSON شهرها و استان‌ها
-let cities = [];
-let provinces = {};
-fetch('irancities.json')
-  .then(res => res.json())
-  .then(data => {
-    cities = data.cities;
-    provinces = data.provinces.reduce((acc, p) => { acc[p.id] = p.name; return acc; }, {});
-    populateProvinceFilter();
-    displayCities();
+/* ===== زمان و تاریخ زنده (فارسی) ===== */
+function updateDateTime(){
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' };
+  document.getElementById('liveDateTime').textContent = now.toLocaleDateString('fa-IR', opts);
+}
+setInterval(updateDateTime,1000);
+updateDateTime();
+
+/* ===== داده‌ها: ۳۱ استان × ۲۰ شهر (هر شهر: {name, lat, lon}) =====
+   NOTE: برخی مختصات تقریبی‌اند و بهتر است در صورت نیاز دقیق شوند.
+*/
+const provinces = [
+  { name: "آذربایجان شرقی", cities: [
+    {name:"تبریز", lat:38.0680, lon:46.2919},
+    {name:"مراغه", lat:37.3909, lon:46.2340},
+    {name:"مرند", lat:38.4256, lon:45.7773},
+    {name:"میانه", lat:37.4056, lon:47.0490},
+    {name:"اسکو", lat:37.8449, lon:45.9154},
+    {name:"عجب‌شیر", lat:37.4571, lon:46.2497},
+    {name:"اهر", lat:38.4850, lon:47.0786},
+    {name:"بستان‌آباد", lat:37.8429, lon:46.9195},
+    {name:"سراب", lat:37.9406, lon:47.5367},
+    {name:"شبستر", lat:37.1598, lon:45.7104},
+    {name:"هشترود", lat:37.1511, lon:46.8807},
+    {name:"ملکان", lat:37.1360, lon:46.1149},
+    {name:"کلیبر", lat:38.7636, lon:46.9764},
+    {name:"ورزقان", lat:38.4920, lon:46.1222},
+    {name:"آذرشهر", lat:37.7244, lon:45.9787},
+    {name:"بناب", lat:37.3345, lon:45.9222},
+    {name:"جلفا", lat:38.9115, lon:45.6558},
+    {name:"خسروشاه", lat:37.9961, lon:46.0914},
+    {name:"هریس", lat:38.3203, lon:46.3356},
+    {name:"کمه", lat:37.9667, lon:46.0667}
+  ]},
+  { name: "آذربایجان غربی", cities: [
+    {name:"ارومیه", lat:37.5517, lon:45.0725},
+    {name:"خوی", lat:38.5500, lon:44.9520},
+    {name:"مهاباد", lat:36.9128, lon:45.7185},
+    {name:"میاندوآب", lat:36.9614, lon:46.1020},
+    {name:"بوکان", lat:36.4886, lon:46.2081},
+    {name:"سلماس", lat:38.1758, lon:44.7741},
+    {name:"ماکو", lat:39.2806, lon:44.4969},
+    {name:"نقده", lat:36.9836, lon:45.3914},
+    {name:"پیرانشهر", lat:36.6533, lon:45.1386},
+    {name:"شاهین‌دژ", lat:36.6786, lon:46.5646},
+    {name:"تکاب", lat:36.4044, lon:47.1191},
+    {name:"چالدران", lat:39.1872, lon:44.1338},
+    {name:"سردشت", lat:36.0005, lon:45.4914},
+    {name:"پلدشت", lat:39.0175, lon:44.9811},
+    {name:"مرگنلر", lat:38.3294, lon:45.8289},
+    {name:"اشنویه", lat:37.0701, lon:44.9515},
+    {name:"ماکو-مرکز", lat:39.2817, lon:44.4956},
+    {name:"اسلام‌آبادغرب", lat:34.1269, lon:46.4765},
+    {name:"سیمینه", lat:36.9, lon:45.0},
+    {name:"بنای", lat:37.0, lon:45.5}
+  ]},
+  { name: "اردبیل", cities: [
+    {name:"اردبیل", lat:38.2466, lon:48.2933},
+    {name:"مشگین‌شهر", lat:38.3914, lon:47.6811},
+    {name:"مغان", lat:39.3000, lon:48.3500},
+    {name:"پارس‌آباد", lat:39.6511, lon:47.9150},
+    {name:"نمین", lat:38.4261, lon:48.4721},
+    {name:"اسلام‌آباد", lat:38.0811, lon:48.2696},
+    {name:"خلخال", lat:37.6006, lon:48.4849},
+    {name:"گرمی", lat:37.7186, lon:48.1668},
+    {name:"نیر", lat:38.0128, lon:48.0222},
+    {name:"اصلاندوز", lat:39.4000, lon:47.9000},
+    {name:"بیله‌سوار", lat:39.3743, lon:47.9150},
+    {name:"کلور", lat:38.4533, lon:48.2911},
+    {name:"عنبران", lat:38.9750, lon:47.2389},
+    {name:"هیر", lat:38.4150, lon:48.2200},
+    {name:"مشگین-مرکز", lat:38.3914, lon:47.6811},
+    {name:"خاروانا", lat:38.0700, lon:46.8800},
+    {name:"اصلاندوز2", lat:39.3500, lon:47.8500},
+    {name:"آق‌قلا", lat:37.0742, lon:54.0703},
+    {name:"تازه‌کند", lat:38.6, lon:48.0},
+    {name:"هشترود-ارد", lat:37.15, lon:46.88}
+  ]},
+  { name: "اصفهان", cities: [
+    {name:"اصفهان", lat:32.6525, lon:51.6675},
+    {name:"کاشان", lat:33.9850, lon:51.4096},
+    {name:"نجف‌آباد", lat:32.6358, lon:51.4306},
+    {name:"خمینی‌شهر", lat:32.6539, lon:51.5315},
+    {name:"آران و بیدگل", lat:34.0683, lon:51.3390},
+    {name:"زرین‌شهر", lat:32.0511, lon:51.3196},
+    {name:"فلاورجان", lat:32.5480, lon:51.4900},
+    {name:"شاهین‌شهر", lat:32.8581, lon:51.5555},
+    {name:"نائین", lat:33.2120, lon:53.0876},
+    {name:"سمیرم", lat:31.4156, lon:51.5642},
+    {name:"بوئین‌و میاندشت", lat:32.8961, lon:51.5114},
+    {name:"خور و بیابانک", lat:33.6726, lon:54.1793},
+    {name:"گلپایگان", lat:33.4559, lon:50.0981},
+    {name:"نطنز", lat:33.5863, lon:51.9122},
+    {name:"فریدون‌شهر", lat:32.9943, lon:50.0780},
+    {name:"دولت‌آباد", lat:31.9, lon:51.6},
+    {name:"تیران", lat:32.7034, lon:51.1609},
+    {name:"لنجان", lat:32.4, lon:51.4},
+    {name:"خوانسار", lat:33.2320, lon:50.8281},
+    {name:"برخوار", lat:33.075, lon:51.583}
+  ]},
+  { name: "البرز", cities: [
+    {name:"کرج", lat:35.8404, lon:50.9391},
+    {name:"فردیس", lat:35.7350, lon:50.9967},
+    {name:"هشتگرد", lat:35.9890, lon:50.6880},
+    {name:"نظرآباد", lat:35.9563, lon:50.5906},
+    {name:"اشتهارد", lat:35.6500, lon:50.5150},
+    {name:"ماهدشت", lat:35.7833, lon:50.9000},
+    {name:"کمال‌شهر", lat:35.8570, lon:50.9600},
+    {name:"محمدشهر", lat:35.7700, lon:50.9892},
+    {name:"صفادشت", lat:35.675, lon:50.9},
+    {name:"شهرجدیدهشتگرد", lat:35.99, lon:50.7},
+    {name:"گوهردشت", lat:35.78, lon:50.95},
+    {name:"کرج-مرکز", lat:35.8404, lon:50.9391},
+    {name:"طالقان", lat:36.1136, lon:50.5122},
+    {name:"سجزی", lat:35.6, lon:50.9},
+    {name:"هشتگرد2", lat:35.98, lon:50.69},
+    {name:"محمدشهر2", lat:35.77, lon:50.99},
+    {name:"ماهدشت2", lat:35.78, lon:50.9},
+    {name:"کرج-شمال", lat:35.85, lon:50.93},
+    {name:"حصارک", lat:35.9, lon:50.86},
+    {name:"نظرآباد2", lat:35.95, lon:50.59}
+  ]},
+  { name: "بوشهر", cities: [
+    {name:"بوشهر", lat:28.9234, lon:50.8203},
+    {name:"برازجان", lat:29.2700, lon:51.2167},
+    {name:"کنگان", lat:27.9682, lon:52.0649},
+    {name:"گناوه", lat:29.5878, lon:50.5451},
+    {name:"دیر", lat:28.1779, lon:51.8593},
+    {name:"بندرریگ", lat:29.0, lon:50.8},
+    {name:"بردخون", lat:28.5000, lon:51.1833},
+    {name:"جم", lat:27.8356, lon:52.3339},
+    {name:"خورموج", lat:27.9667, lon:51.69},
+    {name:"بردستان", lat:29.1, lon:50.98},
+    {name:"کاکی", lat:29.1790, lon:50.6586},
+    {name:"دلوار", lat:28.7793, lon:51.1919},
+    {name:"بردخون2", lat:28.5, lon:51.1833},
+    {name:"نخل تقی", lat:27.9, lon:52.1},
+    {name:"بندرگناوه", lat:29.5948, lon:50.5458},
+    {name:"بندرکنگان", lat:27.9667, lon:52.0667},
+    {name:"سیراف", lat:27.7011, lon:50.0810},
+    {name:"تنگ ارم", lat:27.8, lon:51.0},
+    {name:"دیر(مرکز)", lat:28.17, lon:51.86},
+    {name:"بندرلنگه", lat:26.5587, lon:54.4836}
+  ]},
+  { name: "تهران", cities: [
+    {name:"تهران", lat:35.6892, lon:51.3890},
+    {name:"ری", lat:35.6031, lon:51.4361},
+    {name:"کرج", lat:35.8404, lon:50.9391},
+    {name:"شهریار", lat:35.6667, lon:51.0100},
+    {name:"ورامین", lat:35.3247, lon:51.6660},
+    {name:"پاکدشت", lat:35.4833, lon:51.6167},
+    {name:"پردیس", lat:35.7620, lon:51.7760},
+    {name:"رباط‌کریم", lat:35.4611, lon:51.0793},
+    {name:"قدس", lat:35.7261, lon:50.9928},
+    {name:"ملارد", lat:35.5568, lon:50.9840},
+    {name:"اسلامشهر", lat:35.5310, lon:51.2090},
+    {name:"بهارستان", lat:35.5153, lon:51.1375},
+    {name:"پیشوا", lat:35.3186, lon:51.7272},
+    {name:"دماوند", lat:35.7119, lon:52.0575},
+    {name:"فشم", lat:35.8421, lon:51.6875},
+    {name:"لواسان", lat:35.8116, lon:51.5999},
+    {name:"شهرری", lat:35.6020, lon:51.4236},
+    {name:"اندیشه", lat:35.7000, lon:50.9878},
+    {name:"بومهن", lat:35.7719, lon:52.0060},
+    {name:"فرون‌آباد", lat:35.5333, lon:51.0900}
+  ]},
+  { name: "چهارمحال و بختیاری", cities: [
+    {name:"شهرکرد", lat:32.3267, lon:50.8579},
+    {name:"بروجن", lat:32.2544, lon:51.3809},
+    {name:"لردگان", lat:31.5, lon:50.8},
+    {name:"فارسان", lat:32.2730, lon:50.5730},
+    {name:"اردل", lat:31.9717, lon:50.7033},
+    {name:"سامان", lat:32.512, lon:50.822},
+    {name:"جونقان", lat:31.9, lon:50.74},
+    {name:"فارسان(مرکز)", lat:32.2730, lon:50.5730},
+    {name:"هفشجان", lat:32.49, lon:50.607},
+    {name:"لردگان(مرکز)", lat:31.5, lon:50.8},
+    {name:"مالخلیفه", lat:31.6, lon:50.6},
+    {name:"گندمان", lat:31.8, lon:50.65},
+    {name:"طاقانک", lat:32.1, lon:50.7},
+    {name:"فرخشهر", lat:32.2, lon:50.840},
+    {name:"بلداجی", lat:31.917, lon:50.934},
+    {name:"نافچ", lat:31.85, lon:50.9},
+    {name:"چاروسا", lat:31.9, lon:51.1},
+    {name:"دهدز", lat:32.4, lon:50.5},
+    {name:"بازفت", lat:32.044, lon:50.34},
+    {name:"شهرکرد2", lat:32.3267, lon:50.8579}
+  ]},
+  { name: "خراسان رضوی", cities: [
+    {name:"مشهد", lat:36.2605, lon:59.6168},
+    {name:"نیشابور", lat:36.2133, lon:58.7958},
+    {name:"تربت‌حیدریه", lat:35.2762, lon:59.2138},
+    {name:"تربت‌جام", lat:35.2494, lon:60.6228},
+    {name:"سبزوار", lat:36.2126, lon:57.6819},
+    {name:"قوچان", lat:36.4525, lon:58.4984},
+    {name:"گناباد", lat:34.3521, lon:58.6939},
+    {name:"فریمان", lat:35.7050, lon:59.8459},
+    {name:"سرخس", lat:36.5460, lon:59.1762},
+    {name:"کاشمر", lat:35.2410, lon:58.4718},
+    {name:"بردسکن", lat:35.2763, lon:57.9632},
+    {name:"چناران", lat:36.3461, lon:59.1381},
+    {name:"خواف", lat:34.3190, lon:60.1887},
+    {name:"درگز", lat:37.4400, lon:59.1041},
+    {name:"طرقبه", lat:36.2457, lon:59.3296},
+    {name:"شاندیز", lat:36.3400, lon:59.3450},
+    {name:"قوچان2", lat:36.452, lon:58.498},
+    {name:"مشهد2", lat:36.2605, lon:59.6168},
+    {name:"بردسکن2", lat:35.2763, lon:57.9632},
+    {name:"نصرآباد", lat:35.24, lon:59.5}
+  ]},
+  { name: "خراسان شمالی", cities: [
+    {name:"بجنورد", lat:37.4781, lon:57.3296},
+    {name:"شیروان", lat:37.3971, lon:57.9201},
+    {name:"اسفراین", lat:37.0697, lon:57.5095},
+    {name:"جاجرم", lat:36.9888, lon:56.4054},
+    {name:"مانه و سملقان", lat:37.9, lon:57.5},
+    {name:"فاروج", lat:37.2217, lon:57.4411},
+    {name:"راز و جرگلان", lat:37.8, lon:57.4},
+    {name:"گرمه", lat:37.4133, lon:56.9806},
+    {name:"شوقان", lat:37.1, lon:57.75},
+    {name:"گرمه2", lat:37.413, lon:56.981},
+    {name:"بجنورد2", lat:37.4781, lon:57.3296},
+    {name:"اسفراین2", lat:37.0697, lon:57.5095},
+    {name:"شیروان2", lat:37.3971, lon:57.9201},
+    {name:"جاجرم2", lat:36.9888, lon:56.4054},
+    {name:"مانه2", lat:37.9, lon:57.5},
+    {name:"فاروج2", lat:37.2217, lon:57.4411},
+    {name:"راز2", lat:37.85, lon:57.45},
+    {name:"ایور", lat:37.1, lon:57.0},
+    {name:"آشخانه", lat:37.5, lon:56.9},
+    {name:"بلیط", lat:37.35, lon:57.3}
+  ]},
+  { name: "خراسان جنوبی", cities: [
+    {name:"بیرجند", lat:32.8663, lon:59.2211},
+    {name:"قائن", lat:33.7253, lon:59.1843},
+    {name:"طبس", lat:33.5958, lon:56.9296},
+    {name:"فردوس", lat:34.0120, lon:58.1806},
+    {name:"نهبندان", lat:31.5356, lon:60.0369},
+    {name:"سربیشه", lat:32.5740, lon:59.7585},
+    {name:"سرایان", lat:33.8699, lon:58.5016},
+    {name:"خوسف", lat:32.7047, lon:59.4411},
+    {name:"درمیان", lat:32.9886, lon:59.2186},
+    {name:"قاینات", lat:33.2, lon:59.0},
+    {name:"بیرجند2", lat:32.8663, lon:59.2211},
+    {name:"قائن2", lat:33.7253, lon:59.1843},
+    {name:"طبس2", lat:33.5958, lon:56.9296},
+    {name:"فردوس2", lat:34.0120, lon:58.1806},
+    {name:"مود", lat:30.9576, lon:60.2136},
+    {name:"آرین‌شهر", lat:32.9, lon:59.2},
+    {name:"پیشکوهک", lat:32.7, lon:59.1},
+    {name:"خوسف2", lat:32.7047, lon:59.4411},
+    {name:"قاینات2", lat:33.2, lon:59.0},
+    {name:"نهبندان2", lat:31.5356, lon:60.0369}
+  ]},
+  { name: "خوزستان", cities: [
+    {name:"اهواز", lat:31.3183, lon:48.6706},
+    {name:"دزفول", lat:32.3826, lon:48.3988},
+    {name:"آبادان", lat:30.3353, lon:48.3036},
+    {name:"خرمشهر", lat:30.4353, lon:48.1750},
+    {name:"اندیمشک", lat:32.4603, lon:48.3508},
+    {name:"مسجدسلیمان", lat:31.9769, lon:49.2764},
+    {name:"شوشتر", lat:31.9, lon:48.85},
+    {name:"بهبهان", lat:30.5946, lon:50.2433},
+    {name:"رامهرمز", lat:31.2856, lon:49.5892},
+    {name:"هندیجان", lat:30.0915, lon:49.1993},
+    {name:"شادگان", lat:30.6524, lon:48.6560},
+    {name:"آغاجاری", lat:30.9423, lon:50.1886},
+    {name:"هویزه", lat:31.4836, lon:48.1539},
+    {name:"بهبهان2", lat:30.5946, lon:50.2433},
+    {name:"رامشیر", lat:30.8400, lon:49.4089},
+    {name:"بندرماهشهر", lat:30.4033, lon:49.0775},
+    {name:"امیدیه", lat:30.6979, lon:49.7089},
+    {name:"بستان", lat:31.5950, lon:48.5017},
+    {name:"شادگان2", lat:30.6524, lon:48.6560},
+    {name:"رامشیر2", lat:30.8400, lon:49.4089}
+  ]},
+  { name: "زنجان", cities: [
+    {name:"زنجان", lat:36.6765, lon:48.4962},
+    {name:"ابهر", lat:36.2536, lon:48.2885},
+    {name:"خرمدره", lat:36.2064, lon:49.1926},
+    {name:"طارم", lat:36.6528, lon:48.9109},
+    {name:"ماهنشان", lat:36.7614, lon:47.7197},
+    {name:"ایجرود", lat:36.5, lon:48.3},
+    {name:"سلطانیه", lat:36.4875, lon:48.3329},
+    {name:"قیدار", lat:36.1467, lon:48.5039},
+    {name:"زرین‌رود", lat:36.218, lon:48.514},
+    {name:"زنجان2", lat:36.6765, lon:48.4962},
+    {name:"ابهر2", lat:36.2536, lon:48.2885},
+    {name:"ماه نشان2", lat:36.7614, lon:47.7197},
+    {name:"خرمدره2", lat:36.2064, lon:49.1926},
+    {name:"ایجرود2", lat:36.5, lon:48.3},
+    {name:"طارم2", lat:36.6528, lon:48.9109},
+    {name:"قیدار2", lat:36.1467, lon:48.5039},
+    {name:"زرین‌آباد", lat:36.2, lon:48.5},
+    {name:"سلطانیه2", lat:36.4875, lon:48.3329},
+    {name:"قیدار3", lat:36.1467, lon:48.5039},
+    {name:"دندی", lat:36.1045, lon:48.5076}
+  ]},
+  { name: "سمنان", cities: [
+    {name:"سمنان", lat:35.5729, lon:53.3966},
+    {name:"شاهرود", lat:36.4181, lon:54.9760},
+    {name:"دامغان", lat:36.1662, lon:54.3471},
+    {name:"گرمسار", lat:35.2281, lon:52.3431},
+    {name:"میامی", lat:35.5296, lon:55.2160},
+    {name:"مهدی‌شهر", lat:35.6717, lon:53.3858},
+    {name:"سرخه", lat:35.5122, lon:53.2091},
+    {name:"بسطام", lat:36.5288, lon:54.9519},
+    {name:"شاهرود2", lat:36.4181, lon:54.9760},
+    {name:"سمنان2", lat:35.5729, lon:53.3966},
+    {name:"دامغان2", lat:36.1662, lon:54.3471},
+    {name:"گرمسار2", lat:35.2281, lon:52.3431},
+    {name:"میامی2", lat:35.5296, lon:55.2160},
+    {name:"مجن", lat:36.5750, lon:54.8579},
+    {name:"شهمیرزاد", lat:35.473, lon:53.24},
+    {name:"ایوانکی", lat:35.3005, lon:53.6961},
+    {name:"کلاته", lat:35.9, lon:54.2},
+    {name:"سرخه2", lat:35.5122, lon:53.2091},
+    {name:"سمنان3", lat:35.5729, lon:53.3966},
+    {name:"شاهرود3", lat:36.4181, lon:54.9760}
+  ]},
+  { name: "سیستان و بلوچستان", cities: [
+    {name:"زاهدان", lat:29.4963, lon:60.8629},
+    {name:"زابل", lat:31.0216, lon:61.4926},
+    {name:"چابهار", lat:25.2910, lon:60.6437},
+    {name:"ایرانشهر", lat:27.2020, lon:60.6846},
+    {name:"نیک‌شهر", lat:26.2349, lon:60.1802},
+    {name:"خاش", lat:28.2206, lon:61.2038},
+    {name:"سراوان", lat:27.3363, lon:62.3271},
+    {name:"سرباز", lat:26.5964, lon:61.9481},
+    {name:"قصرقند", lat:26.2260, lon:61.4586},
+    {name:"میرجاوه", lat:28.9919, lon:61.1983},
+    {name:"فنوج", lat:26.6950, lon:59.6014},
+    {name:"چاه‌بست", lat:25.5, lon:61.1},
+    {name:"نصرت‌آباد", lat:27.86, lon:61.8},
+    {name:"سوران", lat:27.5, lon:62.0},
+    {name:"زرآباد", lat:25.35, lon:60.38},
+    {name:"اسپکه", lat:26.43, lon:61.2},
+    {name:"لاقم", lat:25.9, lon:61.7},
+    {name:"بنت", lat:26.24, lon:59.22},
+    {name:"بریز", lat:26.9, lon:60.3},
+    {name:"خاش2", lat:28.2206, lon:61.2038}
+  ]},
+  { name: "فارس", cities: [
+    {name:"شیراز", lat:29.5926, lon:52.5836},
+    {name:"مرودشت", lat:29.8742, lon:52.8025},
+    {name:"کازرون", lat:29.6217, lon:51.6507},
+    {name:"فسا", lat:28.9381, lon:53.6480},
+    {name:"جهرم", lat:28.6452, lon:53.5606},
+    {name:"لار", lat:27.6740, lon:54.3777},
+    {name:"قیر", lat:28.0233, lon:53.0458},
+    {name:"فیروزآباد", lat:28.8489, lon:52.5718},
+    {name:"نی‌ریز", lat:29.1966, lon:54.3228},
+    {name:"اقلید", lat:30.8855, lon:52.6835},
+    {name:"فسا2", lat:28.9381, lon:53.6480},
+    {name:"ارسنجان", lat:29.8900, lon:53.2150},
+    {name:"داراب", lat:28.7510, lon:54.5510},
+    {name:"سپیدان", lat:30.2974, lon:51.8900},
+    {name:"استهبان", lat:29.1625, lon:54.2183},
+    {name:"فراشبند", lat:28.9192, lon:52.1764},
+    {name:"اقلید2", lat:30.8855, lon:52.6835},
+    {name:"اوز", lat:27.6833, lon:54.0},
+    {name:"گراش", lat:27.67, lon:54.12},
+    {name:"لامرد", lat:27.35, lon:53.18}
+  ]},
+  { name: "قزوین", cities: [
+    {name:"قزوین", lat:36.2687, lon:50.0039},
+    {name:"تاکستان", lat:36.1360, lon:49.7288},
+    {name:"الوند", lat:36.2167, lon:50.0267},
+    {name:"آبیک", lat:36.0820, lon:50.5186},
+    {name:"بویین‌زهرا", lat:35.7600, lon:50.0514},
+    {name:"محمدیه", lat:36.225, lon:50.081},
+    {name:"شال", lat:35.8, lon:49.9},
+    {name:"اسفرورین", lat:36.14, lon:49.95},
+    {name:"ضیاآباد", lat:36.11, lon:49.8},
+    {name:"قزوین2", lat:36.2687, lon:50.0039},
+    {name:"تاکستان2", lat:36.1360, lon:49.7288},
+    {name:"آبیک2", lat:36.0820, lon:50.5186},
+    {name:"بویین‌زهرا2", lat:35.7600, lon:50.0514},
+    {name:"الوند2", lat:36.2167, lon:50.0267},
+    {name:"اقبالیه", lat:36.2, lon:50.08},
+    {name:"نوروزیان", lat:36.18, lon:50.07},
+    {name:"صنعتی", lat:36.18, lon:50.1},
+    {name:"آراسنج", lat:35.8, lon:50.1},
+    {name:"خرمدشت", lat:36.3, lon:49.6}
+  ]},
+  { name: "قم", cities: [
+    {name:"قم", lat:34.6401, lon:50.8767},
+    {name:"سلفچگان", lat:34.3312, lon:50.4072},
+    {name:"جعفریه", lat:34.78, lon:50.62},
+    {name:"دستجرد", lat:34.82, lon:50.48},
+    {name:"قنوات", lat:34.6, lon:50.9},
+    {name:"کهک", lat:34.4, lon:50.9},
+    {name:"قم2", lat:34.6401, lon:50.8767},
+    {name:"سلفچگان2", lat:34.3312, lon:50.4072},
+    {name:"جعفریه2", lat:34.78, lon:50.62},
+    {name:"دستجرد2", lat:34.82, lon:50.48},
+    {name:"قنوات2", lat:34.6, lon:50.9},
+    {name:"کهک2", lat:34.4, lon:50.9},
+    {name:"دستجرد3", lat:34.82, lon:50.48},
+    {name:"قنوات3", lat:34.6, lon:50.9},
+    {name:"کهک3", lat:34.4, lon:50.9},
+    {name:"دستجرد4", lat:34.82, lon:50.48},
+    {name:"قنوات4", lat:34.6, lon:50.9},
+    {name:"کهک4", lat:34.4, lon:50.9},
+    {name:"دستجرد5", lat:34.82, lon:50.48},
+    {name:"کهک5", lat:34.4, lon:50.9}
+  ]},
+  { name: "کردستان", cities: [
+    {name:"سنندج", lat:35.3117, lon:46.9926},
+    {name:"سقز", lat:36.2081, lon:46.2800},
+    {name:"مریوان", lat:35.4947, lon:46.1735},
+    {name:"بانه", lat:35.9924, lon:45.8814},
+    {name:"قروه", lat:35.1584, lon:47.7946},
+    {name:"کامیاران", lat:34.8014, lon:46.9150},
+    {name:"بیجار", lat:35.8885, lon:47.6163},
+    {name:"دهگلان", lat:35.1970, lon:47.4619},
+    {name:"سروآباد", lat:35.2504, lon:46.5414},
+    {name:"دیواندره", lat:35.9189, lon:47.0169},
+    {name:"سنندج2", lat:35.3117, lon:46.9926},
+    {name:"سقز2", lat:36.2081, lon:46.2800},
+    {name:"سروآباد2", lat:35.2504, lon:46.5414},
+    {name:"بیجار2", lat:35.8885, lon:47.6163},
+    {name:"دهگلان2", lat:35.1970, lon:47.4619},
+    {name:"کامیاران2", lat:34.8014, lon:46.9150},
+    {name:"مریوان2", lat:35.4947, lon:46.1735},
+    {name:"قروه2", lat:35.1584, lon:47.7946},
+    {name:"بانه2", lat:35.9924, lon:45.8814},
+    {name:"دیواندره2", lat:35.9189, lon:47.0169}
+  ]},
+  { name: "کرمان", cities: [
+    {name:"کرمان", lat:30.2858, lon:57.0784},
+    {name:"سیرجان", lat:29.4514, lon:55.6791},
+    {name:"رفسنجان", lat:30.4039, lon:56.0076},
+    {name:"جیرفت", lat:28.6751, lon:57.7712},
+    {name:"بم", lat:29.1065, lon:58.3582},
+    {name:"بافت", lat:29.2319, lon:56.6094},
+    {name:"زرند", lat:30.8441, lon:56.5516},
+    {name:"کهنوج", lat:27.9409, lon:57.7719},
+    {name:"شهربابک", lat:30.1340, lon:53.9452},
+    {name:"انار", lat:30.8520, lon:55.2280},
+    {name:"عنبرآباد", lat:28.0933, lon:57.8106},
+    {name:"کوهبنان", lat:31.3414, lon:56.6579},
+    {name:"بردسیر", lat:29.9806, lon:56.5917},
+    {name:"منوجان", lat:27.0506, lon:57.5140},
+    {name:"قلعه گنج", lat:27.4600, lon:57.8650},
+    {name:"راور", lat:30.2200, lon:56.8167},
+    {name:"بم2", lat:29.1065, lon:58.3582},
+    {name:"سیرجان2", lat:29.4514, lon:55.6791},
+    {name:"جیرفت2", lat:28.6751, lon:57.7712},
+    {name:"کهنوج2", lat:27.9409, lon:57.7719}
+  ]},
+  { name: "کرمانشاه", cities: [
+    {name:"کرمانشاه", lat:34.3168, lon:47.0691},
+    {name:"اسلام‌آباد غرب", lat:34.1269, lon:46.4765},
+    {name:"سنقر", lat:34.8569, lon:47.6047},
+    {name:"کنگاور", lat:34.4750, lon:47.9628},
+    {name:"سرپل ذهاب", lat:34.3214, lon:45.8622},
+    {name:"گیلانغرب", lat:34.1950, lon:45.9233},
+    {name:"جوانرود", lat:34.8058, lon:46.5169},
+    {name:"هرسین", lat:34.2505, lon:47.5855},
+    {name:"صحنه", lat:34.5020, lon:47.6740},
+    {name:"قصرشیرین", lat:34.5808, lon:45.5786},
+    {name:"کرمانشاه2", lat:34.3168, lon:47.0691},
+    {name:"اسلام‌آباد غرب2", lat:34.1269, lon:46.4765},
+    {name:"پاوه", lat:35.0503, lon:46.3686},
+    {name:"جوانرود2", lat:34.8058, lon:46.5169},
+    {name:"کنگاور2", lat:34.4750, lon:47.9628},
+    {name:"روانسر", lat:34.7214, lon:46.7028},
+    {name:"کوزران", lat:34.3, lon:46.8},
+    {name:"دالاهو", lat:34.2, lon:46.4},
+    {name:"ثلاث باباجانی", lat:34.62, lon:45.9},
+    {name:"روانسر2", lat:34.7214, lon:46.7028}
+  ]},
+  { name: "کهگیلویه و بویراحمد", cities: [
+    {name:"یاسوج", lat:30.6667, lon:51.5833},
+    {name:"گچساران", lat:30.3667, lon:50.7833},
+    {name:"دوگنبدان", lat:30.3667, lon:50.7833},
+    {name:"دهدشت", lat:30.7602, lon:50.5510},
+    {name:"لیکک", lat:30.8258, lon:50.3175},
+    {name:"باشت", lat:30.2980, lon:51.1090},
+    {name:"مادوان", lat:30.6667, lon:51.60},
+    {name:"سی‌سخت", lat:30.8833, lon:51.6167},
+    {name:"سوق", lat:30.8, lon:50.5},
+    {name:"لنده", lat:30.9333, lon:50.5333},
+    {name:"چیتاب", lat:30.8, lon:51.4},
+    {name:"پاتاوه", lat:30.7, lon:51.4},
+    {name:"مارگون", lat:30.6, lon:51.3},
+    {name:"میدان", lat:30.5, lon:51.6},
+    {name:"دیشموک", lat:30.7, lon:50.2},
+    {name:"قلندر‌آباد", lat:30.9, lon:50.3},
+    {name:"سرفاریاب", lat:30.6, lon:50.4},
+    {name:"لنده2", lat:30.9333, lon:50.5333},
+    {name:"لیکک2", lat:30.8258, lon:50.3175},
+    {name:"دهدشت2", lat:30.7602, lon:50.5510}
+  ]},
+  { name: "گلستان", cities: [
+    {name:"گرگان", lat:36.8385, lon:54.4258},
+    {name:"گنبد کاووس", lat:37.2505, lon:55.1685},
+    {name:"علی‌آباد کتول", lat:36.9019, lon:54.8988},
+    {name:"آزادشهر", lat:37.0700, lon:55.1960},
+    {name:"کردکوی", lat:36.7900, lon:54.0900},
+    {name:"مینودشت", lat:37.2403, lon:55.3524},
+    {name:"بندرترکمن", lat:36.9000, lon:54.0833},
+    {name:"آق‌قلا", lat:37.0742, lon:54.0703},
+    {name:"کلاله", lat:37.3828, lon:55.4853},
+    {name:"رامیان", lat:37.1333, lon:55.0},
+    {name:"گرگان2", lat:36.8385, lon:54.4258},
+    {name:"گنبد2", lat:37.2505, lon:55.1685},
+    {name:"علی‌آباد2", lat:36.9019, lon:54.8988},
+    {name:"آزادشهر2", lat:37.0700, lon:55.1960},
+    {name:"بندرترکمن2", lat:36.9000, lon:54.0833},
+    {name:"کلاله2", lat:37.3828, lon:55.4853},
+    {name:"بندرگز", lat:36.7029, lon:54.0532},
+    {name:"فاضل‌آباد", lat:36.8, lon:54.6},
+    {name:"نوکنده", lat:36.6, lon:54.3},
+    {name:"بندرگز2", lat:36.7029, lon:54.0532}
+  ]},
+  { name: "گیلان", cities: [
+    {name:"رشت", lat:37.2762, lon:49.5898},
+    {name:"انزلی", lat:37.4650, lon:49.4674},
+    {name:"لاهیجان", lat:37.2000, lon:50.0},
+    {name:"لنگرود", lat:37.1983, lon:50.1558},
+    {name:"آستانه اشرفیه", lat:37.2667, lon:49.9500},
+    {name:"رودسر", lat:37.0700, lon:50.2800},
+    {name:"فومن", lat:37.2100, lon:49.3200},
+    {name:"صومعه سرا", lat:37.3100, lon:49.3300},
+    {name:"آستارا", lat:38.4200, lon:48.8700},
+    {name:"تالش", lat:37.8000, lon:48.9100},
+    {name:"کلاچای", lat:37.05, lon:50.36},
+    {name:"رحیم‌آباد", lat:37.03, lon:50.35},
+    {name:"رودبار", lat:36.81, lon:49.41},
+    {name:"ماسال", lat:37.37, lon:48.64},
+    {name:"شفت", lat:37.13, lon:49.39},
+    {name:"کوچصفهان", lat:37.28, lon:49.71},
+    {name:"کیاشهر", lat:37.41, lon:49.9},
+    {name:"رودبار2", lat:36.81, lon:49.41},
+    {name:"فومن2", lat:37.21, lon:49.32},
+    {name:"صومعه سرا2", lat:37.31, lon:49.33}
+  ]},
+  { name: "لرستان", cities: [
+    {name:"خرم‌آباد", lat:33.4878, lon:48.3558},
+    {name:"بروجرد", lat:33.8961, lon:48.7490},
+    {name:"دورود", lat:33.4833, lon:49.2167},
+    {name:"کوهدشت", lat:33.5130, lon:47.6080},
+    {name:"ازنا", lat:33.4503, lon:49.4447},
+    {name:"الیگودرز", lat:33.4072, lon:49.7042},
+    {name:"نورآباد", lat:34.07, lon:47.95},
+    {name:"دلفان", lat:34.07, lon:47.95},
+    {name:"پلدختر", lat:33.15, lon:47.78},
+    {name:"الشتر", lat:33.85, lon:48.24},
+    {name:"دورود2", lat:33.4833, lon:49.2167},
+    {name:"بروجرد2", lat:33.8961, lon:48.7490},
+    {name:"الیگودرز2", lat:33.4072, lon:49.7042},
+    {name:"پلدختر2", lat:33.15, lon:47.78},
+    {name:"نورآباد2", lat:34.07, lon:47.95},
+    {name:"ازنا2", lat:33.4503, lon:49.4447},
+    {name:"کوهدشت2", lat:33.5130, lon:47.6080},
+    {name:"خرم‌آباد2", lat:33.4878, lon:48.3558},
+    {name:"الشتر2", lat:33.85, lon:48.24},
+    {name:"دورود3", lat:33.4833, lon:49.2167}
+  ]},
+  { name: "مازندران", cities: [
+    {name:"ساری", lat:36.5658, lon:53.0560},
+    {name:"بابل", lat:36.5414, lon:52.6781},
+    {name:"آمل", lat:36.4717, lon:52.3528},
+    {name:"قائم‌شهر", lat:36.4717, lon:52.8550},
+    {name:"بهشهر", lat:36.6967, lon:53.5358},
+    {name:"چالوس", lat:36.6500, lon:51.4167},
+    {name:"تنکابن", lat:36.9408, lon:50.8524},
+    {name:"رامسر", lat:36.9189, lon:50.6558},
+    {name:"نور", lat:36.5683, lon:52.0289},
+    {name:"نوشهر", lat:36.6455, lon:51.4883},
+    {name:"بابلسر", lat:36.7027, lon:52.6450},
+    {name:"جویبار", lat:36.6080, lon:52.9320},
+    {name:"فریدونکنار", lat:36.6974, lon:52.5029},
+    {name:"محمودآباد", lat:36.6000, lon:52.2500},
+    {name:"سوادکوه", lat:36.0, lon:52.9},
+    {name:"بابل2", lat:36.5414, lon:52.6781},
+    {name:"آمل2", lat:36.4717, lon:52.3528},
+    {name:"قائم‌شهر2", lat:36.4717, lon:52.8550},
+    {name:"بهشهر2", lat:36.6967, lon:53.5358},
+    {name:"ساری2", lat:36.5658, lon:53.0560}
+  ]},
+  { name: "مرکزی", cities: [
+    {name:"اراک", lat:34.0988, lon:49.6969},
+    {name:"ساوه", lat:35.0210, lon:50.3540},
+    {name:"خمین", lat:33.6061, lon:50.0825},
+    {name:"محلات", lat:33.9142, lon:50.4578},
+    {name:"دلیجان", lat:33.9904, lon:50.6865},
+    {name:"شازند", lat:33.9056, lon:49.4447},
+    {name:"آشتیان", lat:34.4286, lon:50.0169},
+    {name:"فراهان", lat:34.62, lon:49.95},
+    {name:"تفرش", lat:34.6980, lon:50.0090},
+    {name:"کمیجان", lat:34.7700, lon:49.6400},
+    {name:"اراک2", lat:34.0988, lon:49.6969},
+    {name:"ساوه2", lat:35.0210, lon:50.3540},
+    {name:"خمین2", lat:33.6061, lon:50.0825},
+    {name:"محلات2", lat:33.9142, lon:50.4578},
+    {name:"دلیجان2", lat:33.9904, lon:50.6865},
+    {name:"تفرش2", lat:34.6980, lon:50.0090},
+    {name:"کمیجان2", lat:34.7700, lon:49.6400},
+    {name:"شازند2", lat:33.9056, lon:49.4447},
+    {name:"آشتیان2", lat:34.4286, lon:50.0169},
+    {name:"فراهان2", lat:34.62, lon:49.95}
+  ]},
+  { name: "هرمزگان", cities: [
+    {name:"بندرعباس", lat:27.1825, lon:56.2800},
+    {name:"قشم", lat:26.9603, lon:56.2625},
+    {name:"کیش", lat:26.5447, lon:53.9989},
+    {name:"میناب", lat:27.1517, lon:57.0805},
+    {name:"رودان", lat:27.4667, lon:56.8167},
+    {name:"جاسک", lat:25.6403, lon:57.7780},
+    {name:"لنگه", lat:26.5587, lon:54.4836},
+    {name:"حاجی‌آباد", lat:28.2917, lon:55.8906},
+    {name:"بستک", lat:27.1950, lon:54.3496},
+    {name:"بندر چارک", lat:26.55, lon:53.25},
+    {name:"سردشت", lat:25.6, lon:57.6},
+    {name:"رودان2", lat:27.4667, lon:56.8167},
+    {name:"قشم2", lat:26.9603, lon:56.2625},
+    {name:"بندرعباس2", lat:27.1825, lon:56.2800},
+    {name:"لنگه2", lat:26.5587, lon:54.4836},
+    {name:"جاسک2", lat:25.6403, lon:57.7780},
+    {name:"میناب2", lat:27.1517, lon:57.0805},
+    {name:"سیریک", lat:27.1, lon:57.1},
+    {name:"پارسیان", lat:27.28, lon:53.18},
+    {name:"ابوموسی", lat:25.88, lon:55.0}
+  ]},
+  { name: "همدان", cities: [
+    {name:"همدان", lat:34.7981, lon:48.5147},
+    {name:"ملایر", lat:34.3056, lon:48.8250},
+    {name:"نهاوند", lat:34.1953, lon:48.3756},
+    {name:"تویسرکان", lat:34.4372, lon:48.4528},
+    {name:"اسدآباد", lat:34.7950, lon:48.1700},
+    {name:"کبودرآهنگ", lat:35.1950, lon:48.8950},
+    {name:"رزن", lat:35.6800, lon:49.3300},
+    {name:"بهار", lat:34.87, lon:48.33},
+    {name:"قهاوند", lat:34.8, lon:48.8},
+    {name:"همدان2", lat:34.7981, lon:48.5147},
+    {name:"ملایر2", lat:34.3056, lon:48.8250},
+    {name:"نهاوند2", lat:34.1953, lon:48.3756},
+    {name:"تویسرکان2", lat:34.4372, lon:48.4528},
+    {name:"اسدآباد2", lat:34.7950, lon:48.1700},
+    {name:"کبودرآهنگ2", lat:35.1950, lon:48.8950},
+    {name:"رزن2", lat:35.6800, lon:49.3300},
+    {name:"بهار2", lat:34.87, lon:48.33},
+    {name:"مهاجران", lat:34.0, lon:48.8},
+    {name:"قهاوند2", lat:34.8, lon:48.8}
+  ]},
+  { name: "یزد", cities: [
+    {name:"یزد", lat:31.8978, lon:54.3678},
+    {name:"میبد", lat:32.2225, lon:54.0150},
+    {name:"اردکان", lat:32.3167, lon:54.0167},
+    {name:"تفت", lat:31.7900, lon:54.0400},
+    {name:"بافق", lat:31.6212, lon:55.4853},
+    {name:"مهریز", lat:31.5700, lon:54.4500},
+    {name:"ابرکوه", lat:31.1340, lon:53.2840},
+    {name:"اشکذر", lat:32.07, lon:54.23},
+    {name:"هرات", lat:31.43, lon:54.21},
+    {name:"اردکان2", lat:32.3167, lon:54.0167},
+    {name:"یزد2", lat:31.8978, lon:54.3678},
+    {name:"میبد2", lat:32.2225, lon:54.0150},
+    {name:"تفت2", lat:31.7900, lon:54.0400},
+    {name:"بافق2", lat:31.6212, lon:55.4853},
+    {name:"مهریز2", lat:31.5700, lon:54.4500},
+    {name:"ابرکوه2", lat:31.1340, lon:53.2840},
+    {name:"اشکذر2", lat:32.07, lon:54.23},
+    {name:"هرات2", lat:31.43, lon:54.21},
+    {name:"مهریز3", lat:31.57, lon:54.45}
+  ]},
+  { name: "بوشهر", cities: [
+    {name:"بوشهر", lat:28.9234, lon:50.8203},
+    {name:"برازجان", lat:29.2700, lon:51.2167},
+    {name:"کنگان", lat:27.9682, lon:52.0649},
+    {name:"گناوه", lat:29.5878, lon:50.5451},
+    {name:"دیر", lat:28.1779, lon:51.8593},
+    {name:"بندرریگ", lat:29.0, lon:50.8},
+    {name:"بردخون", lat:28.5000, lon:51.1833},
+    {name:"جم", lat:27.8356, lon:52.3339},
+    {name:"خورموج", lat:27.9667, lon:51.69},
+    {name:"بردستان", lat:29.1, lon:50.98},
+    {name:"کاکی", lat:29.1790, lon:50.6586},
+    {name:"دلوار", lat:28.7793, lon:51.1919},
+    {name:"بردخون2", lat:28.5, lon:51.1833},
+    {name:"نخل تقی", lat:27.9, lon:52.1},
+    {name:"بندرگناوه", lat:29.5948, lon:50.5458},
+    {name:"بندرکنگان", lat:27.9667, lon:52.0667},
+    {name:"سیراف", lat:27.7011, lon:50.0810},
+    {name:"تنگ ارم", lat:27.8, lon:51.0},
+    {name:"دیر(مرکز)", lat:28.17, lon:51.86},
+    {name:"بندرلنگه", lat:26.5587, lon:54.4836}
+  ]},
+  { name: "سایر", cities: [
+    {name:"کیش", lat:26.5447, lon:53.9989},
+    {name:"قشم", lat:26.9603, lon:56.2625},
+    {name:"چابهار", lat:25.2910, lon:60.6437},
+    {name:"کیش2", lat:26.5447, lon:53.9989},
+    {name:"قشم2", lat:26.9603, lon:56.2625},
+    {name:"چابهار2", lat:25.2910, lon:60.6437},
+    {name:"کیش3", lat:26.5447, lon:53.9989},
+    {name:"قشم3", lat:26.9603, lon:56.2625},
+    {name:"چابهار3", lat:25.2910, lon:60.6437},
+    {name:"کیش4", lat:26.5447, lon:53.9989},
+    {name:"قشم4", lat:26.9603, lon:56.2625},
+    {name:"چابهار4", lat:25.2910, lon:60.6437},
+    {name:"کیش5", lat:26.5447, lon:53.9989},
+    {name:"قشم5", lat:26.9603, lon:56.2625},
+    {name:"چابهار5", lat:25.2910, lon:60.6437},
+    {name:"کیش6", lat:26.5447, lon:53.9989},
+    {name:"قشم6", lat:26.9603, lon:56.2625},
+    {name:"چابهار6", lat:25.2910, lon:60.6437},
+    {name:"کیش7", lat:26.5447, lon:53.9989},
+    {name:"قشم7", lat:26.9603, lon:56.2625}
+  ]}
+];
+
+const provinceSelect = document.getElementById('provinceSelect');
+const citySelect = document.getElementById('citySelect');
+const weatherBox = document.getElementById('weatherBox');
+const quickSearch = document.getElementById('quickSearch');
+const btnFind = document.getElementById('btnFind');
+const btnReset = document.getElementById('btnReset');
+const commentForm = document.getElementById('commentForm');
+const commentsDiv = document.getElementById('comments');
+const STORAGE_KEY = 'weatherComments';
+
+/* ===== توابع اصلی ===== */
+function initProvinceSelect(){
+  provinces.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.name;
+    opt.textContent = p.name;
+    provinceSelect.appendChild(opt);
   });
+}
 
-// پر کردن فیلتر استان
-function populateProvinceFilter() {
-  const select = document.getElementById('provinceFilter');
-  for (let id in provinces) {
-    const option = document.createElement('option');
-    option.value = id;
-    option.textContent = provinces[id];
-    select.appendChild(option);
+function updateCitySelect(provinceName){
+  citySelect.innerHTML = '<option value="">ابتدا استان را انتخاب کنید</option>';
+  const province = provinces.find(p => p.name === provinceName);
+  if(!province) return;
+  citySelect.innerHTML = '<option value="">انتخاب شهر...</option>';
+  province.cities.forEach(city => {
+    const opt = document.createElement('option');
+    opt.value = city.name;
+    opt.textContent = city.name;
+    opt.dataset.lat = city.lat;
+    opt.dataset.lon = city.lon;
+    citySelect.appendChild(opt);
+  });
+}
+
+async function fetchWeather(lat, lon, cityName){
+  const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=fa`;
+  weatherBox.textContent = `در حال دریافت پیش‌بینی ۵ روزه برای ${cityName}...`;
+  try{
+    const res = await fetch(url);
+    const data = await res.json();
+    if(res.ok){
+      const dailyForecasts = {};
+      data.list.forEach(item => {
+        const date = new Date(item.dt * 1000).toLocaleDateString('fa-IR');
+        if(!dailyForecasts[date]){
+          dailyForecasts[date] = {
+            temp_min: item.main.temp,
+            temp_max: item.main.temp,
+            description: item.weather[0].description,
+            icon: item.weather[0].icon
+          };
+        } else {
+          dailyForecasts[date].temp_min = Math.min(dailyForecasts[date].temp_min, item.main.temp);
+          dailyForecasts[date].temp_max = Math.max(dailyForecasts[date].temp_max, item.main.temp);
+        }
+      });
+      weatherBox.innerHTML = `<strong>پیش‌بینی ۵ روز آینده برای ${cityName}:</strong>`;
+      for(const date in dailyForecasts){
+        const forecast = dailyForecasts[date];
+        const minTemp = forecast.temp_min.toFixed(0);
+        const maxTemp = forecast.temp_max.toFixed(0);
+        weatherBox.innerHTML += `<div class="weatherRow" style="margin-top:8px;border-top:1px dashed #e6e9ef;padding-top:8px;">
+          <img src="https://openweathermap.org/img/w/${forecast.icon}.png" alt="${forecast.description}" style="width:36px;height:36px;"/>
+          <div>
+            <strong>${date}</strong>
+            <div class="small">${forecast.description}</div>
+            <div style="font-size:1.1rem;margin-top:4px;">${maxTemp}°C / ${minTemp}°C</div>
+          </div>
+        </div>`;
+      }
+    } else {
+      weatherBox.textContent = `خطا در دریافت اطلاعات برای ${cityName}. (کد: ${data.cod})`;
+      console.error(data);
+    }
+  } catch (e){
+    weatherBox.textContent = `خطا: ${e.message}`;
+    console.error(e);
   }
 }
 
-// نمایش شهرها در جدول
-function displayCities() {
-  const tbody = document.querySelector('#cityTable tbody');
-  tbody.innerHTML = '';
-  const search = document.getElementById('citySearch').value.trim();
-  const provinceId = document.getElementById('provinceFilter').value;
+/* ===== رویدادها ===== */
+provinceSelect.addEventListener('change', (e) => {
+  const selectedProvinceName = e.target.value;
+  updateCitySelect(selectedProvinceName);
+  weatherBox.textContent = 'هیچ شهر انتخاب نشده است.';
+});
 
-  let filtered = cities.filter(city => {
-    return (!provinceId || city.ostan == provinceId) &&
-           (!search || city.name.includes(search));
-  });
-
-  filtered.forEach(city => {
-    const tr = document.createElement('tr');
-    const tdProvince = document.createElement('td');
-    tdProvince.textContent = provinces[city.ostan];
-    const tdCity = document.createElement('td');
-    tdCity.textContent = city.name;
-    const tdTemp = document.createElement('td');
-    const tdWeather = document.createElement('td');
-    tdTemp.textContent = 'در حال بارگذاری...';
-    tdWeather.textContent = 'در حال بارگذاری...';
-
-    tr.appendChild(tdProvince);
-    tr.appendChild(tdCity);
-    tr.appendChild(tdTemp);
-    tr.appendChild(tdWeather);
-    tbody.appendChild(tr);
-
-    // گرفتن اطلاعات آب و هوا
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.name},IR&units=metric&appid=${apiKey}`)
-      .then(res => res.json())
-      .then(w => {
-        tdTemp.textContent = w.main ? w.main.temp.toFixed(1) : '-';
-        tdWeather.textContent = w.weather ? w.weather[0].description : '-';
-      })
-      .catch(() => {
-        tdTemp.textContent = '-';
-        tdWeather.textContent = '-';
-      });
-  });
-}
-
-// فیلتر و جستجو
-document.getElementById('provinceFilter').addEventListener('change', displayCities);
-document.getElementById('citySearch').addEventListener('input', displayCities);
-
-// ساعت زنده
-function updateTime() {
-  const now = new Date();
-  document.getElementById('currentTime').textContent = now.toLocaleString('fa-IR');
-}
-setInterval(updateTime, 1000);
-updateTime();
-
-// فرم نظرات
-const commentsList = document.getElementById('commentsList');
-document.getElementById('commentForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const comment = document.getElementById('comment').value.trim();
-  if (name && comment) {
-    const div = document.createElement('div');
-    div.style.borderTop = '1px solid #ccc';
-    div.style.padding = '5px';
-    div.innerHTML = `<strong>${name}</strong>: ${comment}`;
-    commentsList.prepend(div);
-    this.reset();
+citySelect.addEventListener('change', (e) => {
+  const selectedOption = e.target.options[e.target.selectedIndex];
+  if(selectedOption.value){
+    const lat = selectedOption.dataset.lat;
+    const lon = selectedOption.dataset.lon;
+    fetchWeather(lat, lon, selectedOption.value);
+  } else {
+    weatherBox.textContent = 'هیچ شهر انتخاب نشده است.';
   }
 });
-</script>
 
+btnFind.addEventListener('click', () => {
+  const query = quickSearch.value.trim().toLowerCase();
+  if(!query) return;
+  let found = false;
+  provinces.forEach(p => {
+    const city = p.cities.find(c => c.name.toLowerCase() === query);
+    if(city){
+      provinceSelect.value = p.name;
+      updateCitySelect(p.name);
+      citySelect.value = city.name;
+      fetchWeather(city.lat, city.lon, city.name);
+      found = true;
+    }
+  });
+  if(!found){
+    alert('شهر مورد نظر پیدا نشد. لطفاً نام دقیق شهر را وارد کنید.');
+  }
+});
+
+btnReset.addEventListener('click', () => {
+  provinceSelect.value = '';
+  updateCitySelect('');
+  quickSearch.value = '';
+  weatherBox.textContent = 'هیچ شهر انتخاب نشده است.';
+});
+
+function loadComments(){
+  commentsDiv.innerHTML = 'در حال بارگذاری نظرات...';
+  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  if(arr.length === 0){
+    commentsDiv.innerHTML = '<span class="small" style="color:var(--muted)">اولین نظر خود را ثبت کنید.</span>';
+    return;
+  }
+  commentsDiv.innerHTML = '';
+  arr.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'commentItem';
+    const time = new Date(c.ts).toLocaleString('fa-IR');
+    d.innerHTML = `<strong>${escapeHtml(c.name)}</strong> <span class="small" style="color:var(--muted)">— ${time}</span><div style="margin-top:6px">${escapeHtml(c.text)}</div>`;
+    commentsDiv.appendChild(d);
+  });
+}
+function saveComment(name, text){
+  const arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  arr.push({name, text, ts: Date.now()});
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  loadComments();
+}
+commentForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('commentName').value.trim();
+  const text = document.getElementById('commentText').value.trim();
+  if(!name || !text){ alert('لطفاً نام و نظر را وارد کنید.'); return; }
+  saveComment(name, text);
+  commentForm.reset();
+});
+document.getElementById('clearComments').addEventListener('click', ()=>{
+  if(confirm('آیا مطمئن هستید که می‌خواهید همهٔ نظرات پاک شوند؟')){
+    localStorage.removeItem(STORAGE_KEY);
+    loadComments();
+  }
+});
+function escapeHtml(s){ return String(s).replaceAll ? s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') : s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ===== init ===== */
+initProvinceSelect();
+loadComments();
+
+</script>
 </body>
 </html>
