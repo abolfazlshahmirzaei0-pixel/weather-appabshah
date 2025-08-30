@@ -221,6 +221,12 @@ h2 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
+.temp-color { color: #d32f2f; }
+.humidity-color { color: #0277bd; }
+.wind-color { color: #558b2f; }
+.pop-color { color: #03a9f4; }
+.current-city-name { color: #00796b; font-weight: 700; }
+
 footer {
     text-align: center;
     padding: 20px;
@@ -251,7 +257,7 @@ footer {
 
     <section id="weather-info">
         <div id="current-weather" class="card">
-            <h2>وضعیت فعلی</h2>
+            <h2><span id="current-city-title">وضعیت فعلی</span></h2>
             <div class="weather-data-card" id="current-data">
                 <p>لطفاً یک شهر را انتخاب کنید.</p>
             </div>
@@ -333,9 +339,10 @@ const currentData = document.getElementById('current-data');
 const forecastDiv = document.getElementById('forecast');
 const feedbackForm = document.getElementById('feedback-form');
 const commentsList = document.getElementById('comments-list');
+const currentCityTitle = document.getElementById('current-city-title');
 
 // ساعت زنده
-function updateLiveTime(){
+function updateLiveTime() {
     const now = new Date();
     liveTimeElement.textContent = now.toLocaleDateString('fa-IR', {
         weekday: 'long',
@@ -348,7 +355,7 @@ function updateLiveTime(){
     });
 }
 setInterval(updateLiveTime, 1000);
-updateLiveTime(); // برای نمایش زمان به محض بارگذاری صفحه
+updateLiveTime();
 
 // تبدیل timestamp به تاریخ شمسی
 function getPersianDate(timestamp) {
@@ -371,7 +378,8 @@ for (const province in provinces) {
 // رویداد تغییر استان
 provinceSelect.addEventListener('change', () => {
     const selectedProvince = provinceSelect.value;
-    citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>'; // پاک کردن شهرهای قبلی
+    citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
+    currentCityTitle.textContent = 'وضعیت فعلی';
     currentData.innerHTML = '<p>لطفاً یک شهر را انتخاب کنید.</p>';
     forecastDiv.innerHTML = '';
 
@@ -389,45 +397,82 @@ provinceSelect.addEventListener('change', () => {
 citySelect.addEventListener('change', () => {
     const selectedCity = citySelect.value;
     if (selectedCity) {
-        fetchWeather(selectedCity);
+        currentCityTitle.innerHTML = `وضعیت فعلی در <span class="current-city-name">${selectedCity}</span>`;
+        fetchCoordinates(selectedCity);
     } else {
+        currentCityTitle.textContent = 'وضعیت فعلی';
         currentData.innerHTML = '<p>لطفاً یک شهر را انتخاب کنید.</p>';
         forecastDiv.innerHTML = '';
     }
 });
 
+// دریافت مختصات شهر
+async function fetchCoordinates(city) {
+    currentData.innerHTML = '<p>در حال یافتن مختصات شهر...</p>';
+    forecastDiv.innerHTML = '<p>در حال بارگذاری...</p>';
+
+    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city},IR&limit=1&appid=${API_KEY}`;
+
+    try {
+        const response = await fetch(geoUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.length > 0) {
+            const { lat, lon } = data[0];
+            fetchWeather(lat, lon, city);
+        } else {
+            currentData.innerHTML = `<p>مختصات برای شهر "${city}" یافت نشد. لطفاً شهر دیگری را انتخاب کنید.</p>`;
+            forecastDiv.innerHTML = '';
+        }
+    } catch (error) {
+        currentData.innerHTML = `<p>خطا در دریافت مختصات. لطفاً بعداً دوباره تلاش کنید.</p>`;
+        forecastDiv.innerHTML = '';
+        console.error('Error fetching coordinates:', error);
+    }
+}
+
 // نمایش داده‌های آب و هوای فعلی
 function displayCurrentWeather(data) {
     if (data.cod !== 200) {
-        currentData.innerHTML = `<p>خطا در دریافت داده برای شهر: ${citySelect.value}</p>`;
+        currentData.innerHTML = `<p>خطا در دریافت داده برای شهر: ${data.name || 'نامشخص'}</p>`;
         return;
     }
-    const iconUrl = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    
+    const now = new Date().getTime() / 1000;
+    const isDay = now > data.sys.sunrise && now < data.sys.sunset;
+    const iconCode = data.weather[0].icon;
+    const iconToShow = isDay ? iconCode.replace('n', 'd') : iconCode.replace('d', 'n');
+    const iconUrl = `https://openweathermap.org/img/wn/${iconToShow}@2x.png`;
     const persianDate = getPersianDate(data.dt);
     
     currentData.innerHTML = `
         <div class="weather-icon">
             <img src="${iconUrl}" alt="${data.weather[0].description}">
         </div>
-        <h3>وضعیت در ${data.name}</h3>
         <p><strong>تاریخ:</strong> ${persianDate}</p>
-        <p><strong>دما:</strong> ${Math.round(data.main.temp)}°C</p>
+        <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(data.main.temp)}°C</p>
         <p><strong>وضعیت:</strong> ${data.weather[0].description}</p>
-        <p><strong>حداقل دما:</strong> ${Math.round(data.main.temp_min)}°C</p>
-        <p><strong>حداکثر دما:</strong> ${Math.round(data.main.temp_max)}°C</p>
-        <p><strong>رطوبت:</strong> ${data.main.humidity}%</p>
-        <p><strong>سرعت باد:</strong> ${Math.round(data.wind.speed * 3.6)} کیلومتر بر ساعت</p>
+        <p><strong><span class="temp-color">حداقل دما:</span></strong> ${Math.round(data.main.temp_min)}°C</p>
+        <p><strong><span class="temp-color">حداکثر دما:</span></strong> ${Math.round(data.main.temp_max)}°C</p>
+        <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${data.main.humidity}%</p>
+        <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${Math.round(data.wind.speed * 3.6)} کیلومتر بر ساعت</p>
     `;
 }
 
 // نمایش پیش‌بینی ۵ روزه
 function displayForecast(data) {
-    forecastDiv.innerHTML = ''; // پاک کردن پیش‌بینی‌های قبلی
+    forecastDiv.innerHTML = '';
     const dailyForecasts = data.list.filter(item => item.dt_txt.includes('12:00:00'));
     dailyForecasts.forEach(forecast => {
         const iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
         const date = new Date(forecast.dt * 1000).toLocaleDateString('fa-IR', { weekday: 'long' });
         const persianDate = getPersianDate(forecast.dt);
+        const pop = Math.round(forecast.pop * 100);
+        const humidity = forecast.main.humidity;
+        const windSpeed = Math.round(forecast.wind.speed * 3.6);
+
         const card = document.createElement('div');
         card.classList.add('forecast-card');
         card.innerHTML = `
@@ -436,53 +481,45 @@ function displayForecast(data) {
             <div class="weather-icon">
                 <img src="${iconUrl}" alt="${forecast.weather[0].description}">
             </div>
-            <p><strong>دما:</strong> ${Math.round(forecast.main.temp)}°C</p>
+            <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(forecast.main.temp)}°C</p>
             <p><strong>وضعیت:</strong> ${forecast.weather[0].description}</p>
+            <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${humidity}%</p>
+            <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeed} km/h</p>
+            <p><strong><span class="pop-color"><i class="fas fa-cloud-showers-heavy"></i> احتمال بارش:</span></strong> ${pop}%</p>
         `;
         forecastDiv.appendChild(card);
     });
 }
 
-// دریافت آب و هوا
-function fetchWeather(city) {
-    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},IR&appid=${API_KEY}&units=metric&lang=fa`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city},IR&appid=${API_KEY}&units=metric&lang=fa`;
-
-    // نمایش وضعیت بارگذاری
+// دریافت آب و هوا با استفاده از مختصات
+async function fetchWeather(lat, lon, city) {
     currentData.innerHTML = '<p>در حال بارگذاری اطلاعات هواشناسی...</p>';
     forecastDiv.innerHTML = '<p>در حال بارگذاری...</p>';
 
-    // وضعیت فعلی
-    fetch(currentUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            displayCurrentWeather(data);
-        })
-        .catch(error => {
-            currentData.innerHTML = `<p>خطا در دریافت وضعیت فعلی. لطفاً بعداً دوباره تلاش کنید.</p>`;
-            console.error('Error fetching current weather:', error);
-        });
+    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
 
-    // پیش‌بینی
-    fetch(forecastUrl)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            displayForecast(data);
-        })
-        .catch(error => {
-            forecastDiv.innerHTML = `<p>خطا در دریافت پیش‌بینی. لطفاً بعداً دوباره تلاش کنید.</p>`;
-            console.error('Error fetching forecast:', error);
-        });
+    try {
+        const [currentResponse, forecastResponse] = await Promise.all([
+            fetch(currentUrl),
+            fetch(forecastUrl)
+        ]);
+        
+        if (!currentResponse.ok || !forecastResponse.ok) {
+            throw new Error(`HTTP error! status: ${currentResponse.status} / ${forecastResponse.status}`);
+        }
+
+        const currentDataResponse = await currentResponse.json();
+        const forecastDataResponse = await forecastResponse.json();
+
+        displayCurrentWeather(currentDataResponse);
+        displayForecast(forecastDataResponse);
+
+    } catch (error) {
+        currentData.innerHTML = `<p>خطا در دریافت داده‌های هواشناسی. لطفاً بعداً دوباره تلاش کنید.</p>`;
+        forecastDiv.innerHTML = '';
+        console.error('Error fetching weather data:', error);
+    }
 }
 
 // --- مدیریت نظرات ---
