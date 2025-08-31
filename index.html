@@ -574,14 +574,21 @@
     function displayForecast(data) {
         forecastDiv.innerHTML = '';
         
-        const dailyForecasts = data.list.filter(item => item.dt_txt.includes('12:00:00'));
+        // فیلتر کردن پیش‌بینی‌ها برای ساعت ۱۲:۰۰ ظهر و حذف پیش‌بینی روز جاری
+        const middayForecasts = data.list.filter(item => item.dt_txt.includes('12:00:00'));
 
-        if (dailyForecasts.length === 0) {
+        const now = new Date();
+        const relevantForecasts = middayForecasts.filter(forecast => {
+            const forecastDate = new Date(forecast.dt * 1000);
+            return forecastDate.getDate() !== now.getDate();
+        }).slice(0, 5); // فقط ۵ روز آینده را نگه می‌داریم
+
+        if (relevantForecasts.length === 0) {
             forecastDiv.innerHTML = `<p>پیش‌بینی ۵ روزه موجود نیست.</p>`;
             return;
         }
         
-        dailyForecasts.forEach(forecast => {
+        relevantForecasts.forEach(forecast => {
             const iconCode = forecast.weather[0].icon;
             // فرض می‌کنیم پیش‌بینی ظهر همیشه روز است و n را با d جایگزین می‌کنیم
             const iconToShow = iconCode.replace('n', 'd');
