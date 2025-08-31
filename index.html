@@ -13,6 +13,7 @@
             --accent-color: #00796b;
             --background-gradient: linear-gradient(to bottom, #f0f4f7, #ffffff);
             --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            --night-header-gradient: linear-gradient(135deg, #1a237e, #303f9f);
             --card-bg: #ffffff;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --card-hover-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
@@ -43,6 +44,11 @@
             overflow: hidden;
             border-bottom-left-radius: var(--border-radius);
             border-bottom-right-radius: var(--border-radius);
+            transition: background 0.5s ease-in-out;
+        }
+        
+        header.night-header {
+            background: var(--night-header-gradient);
         }
 
         header h1 {
@@ -177,7 +183,14 @@
             align-items: center;
             margin: 0 auto 15px;
             box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.1);
+            font-size: 4em;
+            color: var(--primary-color);
         }
+        .weather-icon img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
 
         .weather-data-card p {
             margin: 10px 0;
@@ -221,6 +234,7 @@
             width: 70px;
             height: 70px;
             margin: 0 auto 10px;
+            font-size: 3em;
         }
 
         .forecast-card p {
@@ -455,15 +469,22 @@
     const provinceSelect = document.getElementById('province-select');
     const citySelect = document.getElementById('city-select');
     const liveTimeElement = document.getElementById('live-time');
+    const header = document.querySelector('header');
     const currentData = document.getElementById('current-data');
     const forecastDiv = document.getElementById('forecast');
     const feedbackForm = document.getElementById('feedback-form');
     const commentsList = document.getElementById('comments-list');
     const currentCityTitle = document.getElementById('current-city-title');
 
+    function isDay() {
+        const hour = new Date().getHours();
+        return hour >= 6 && hour < 20;
+    }
+
     function updateLiveTime() {
         const now = new Date();
-        liveTimeElement.textContent = now.toLocaleDateString('fa-IR', {
+        const status = isDay() ? "روز" : "شب";
+        liveTimeElement.textContent = `اکنون ${status} است, ${now.toLocaleDateString('fa-IR', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -471,7 +492,13 @@
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
-        });
+        })}`;
+
+        if (isDay()) {
+            header.classList.remove('night-header');
+        } else {
+            header.classList.add('night-header');
+        }
     }
 
     setInterval(updateLiveTime, 1000);
@@ -484,6 +511,50 @@
             month: 'long',
             day: 'numeric'
         });
+    }
+
+    function getWeatherIconClass(iconCode, isForecast = false) {
+        const prefix = 'fa-';
+        let iconClass = '';
+        let isDayIcon = iconCode.endsWith('d');
+
+        // For forecast, we determine day/night based on the time of the forecast data, 
+        // not the current time. The OpenWeatherMap icon code already handles this.
+        if (isForecast) {
+             // The isDayIcon variable is already correctly set by the iconCode
+        } else {
+             // For current weather, use the isDay() function to be more reliable
+             isDayIcon = isDay();
+        }
+
+        switch (iconCode.substring(0, 2)) {
+            case '01': // Clear sky
+                iconClass = isDayIcon ? 'sun' : 'moon';
+                break;
+            case '02': // Few clouds
+                iconClass = isDayIcon ? 'cloud-sun' : 'cloud-moon';
+                break;
+            case '03': // Scattered clouds
+            case '04': // Broken clouds, overcast clouds
+                iconClass = 'cloud';
+                break;
+            case '09': // Shower rain
+            case '10': // Rain
+                iconClass = isDayIcon ? 'cloud-sun-rain' : 'cloud-moon-rain';
+                break;
+            case '11': // Thunderstorm
+                iconClass = 'cloud-bolt';
+                break;
+            case '13': // Snow
+                iconClass = 'snowflake';
+                break;
+            case '50': // Mist
+                iconClass = 'smog';
+                break;
+            default:
+                iconClass = 'cloud';
+        }
+        return `${prefix}${iconClass}`;
     }
 
     for (const province in provinces) {
@@ -541,7 +612,7 @@
                 forecastDiv.innerHTML = '';
             }
         } catch (error) {
-            currentData.innerHTML = `<p>خطا در دریافت مختصات. لطفاً بعداً دوباره تلاش کنید.</p>`;
+            currentData.innerHTML = `<p>خطا در دریافت مختصات: ${error.message}. لطفاً بعداً دوباره تلاش کنید.</p>`;
             forecastDiv.innerHTML = '';
             console.error('Error fetching coordinates:', error);
         }
@@ -553,30 +624,27 @@
             return;
         }
 
-        const now = data.dt;
-        const isDay = now > data.sys.sunrise && now < data.sys.sunset;
         const iconCode = data.weather[0].icon;
-        const iconToShow = isDay ? iconCode.replace('n', 'd') : iconCode.replace('d', 'n');
-        const iconUrl = `https://openweathermap.org/img/wn/${iconToShow}@2x.png`;
+        const fontAwesomeIconClass = getWeatherIconClass(iconCode);
         const persianDate = getPersianDate(data.dt);
         const description = data.weather[0].description;
+        const windSpeedKmH = Math.round(data.wind.speed * 3.6);
 
         currentData.innerHTML = `
             <div class="weather-icon">
-                <img src="${iconUrl}" alt="${description}">
+                <i class="fas ${fontAwesomeIconClass}"></i> 
             </div>
             <p><strong>تاریخ:</strong> ${persianDate}</p>
             <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(data.main.temp)}°C</p>
             <p><strong>وضعیت:</strong> ${description}</p>
             <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${Math.round(data.main.temp_min)}°C / ${Math.round(data.main.temp_max)}°C</p>
             <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${data.main.humidity}%</p>
-            <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${Math.round(data.wind.speed * 3.6)}km/h</p>
+            <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeedKmH}km/h</p>
         `;
     }
 
     function displayForecast(data) {
         forecastDiv.innerHTML = '';
-        
         const dailyForecasts = {};
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -584,26 +652,31 @@
         data.list.forEach(item => {
             const itemDate = new Date(item.dt * 1000);
             itemDate.setHours(0, 0, 0, 0);
-            const dateStr = itemDate.toISOString().split('T')[0];
 
-            if (itemDate > today) { // فقط روزهای آینده
+            // Only consider data for days after today
+            if (itemDate > today) {
+                const dateStr = itemDate.toISOString().split('T')[0];
                 if (!dailyForecasts[dateStr]) {
                     dailyForecasts[dateStr] = {
                         temps: [],
-                        humidity: item.main.humidity,
-                        windSpeed: item.wind.speed,
-                        pop: item.pop,
-                        date: item.dt,
+                        humidity: [],
+                        windSpeed: [],
+                        pop: [],
+                        description: [],
                         icon: item.weather[0].icon,
-                        description: item.weather[0].description
+                        date: item.dt
                     };
                 }
                 dailyForecasts[dateStr].temps.push(item.main.temp);
+                dailyForecasts[dateStr].humidity.push(item.main.humidity);
+                dailyForecasts[dateStr].windSpeed.push(item.wind.speed);
+                dailyForecasts[dateStr].pop.push(item.pop);
+                dailyForecasts[dateStr].description.push(item.weather[0].description);
             }
         });
 
         const sortedDates = Object.keys(dailyForecasts).sort();
-        const futureDays = sortedDates.slice(0, 5); // فقط 5 روز آینده را می‌گیریم
+        const futureDays = sortedDates.slice(0, 5);
 
         if (futureDays.length === 0) {
             forecastDiv.innerHTML = `<p>پیش‌بینی ۵ روزه موجود نیست.</p>`;
@@ -614,14 +687,14 @@
             const forecast = dailyForecasts[dateStr];
             const minTemp = Math.round(Math.min(...forecast.temps));
             const maxTemp = Math.round(Math.max(...forecast.temps));
-            
+            const avgHumidity = Math.round(forecast.humidity.reduce((a, b) => a + b, 0) / forecast.humidity.length);
+            const avgWindSpeed = Math.round((forecast.windSpeed.reduce((a, b) => a + b, 0) / forecast.windSpeed.length) * 3.6);
+            const maxPop = Math.round(Math.max(...forecast.pop) * 100);
+
             const date = new Date(forecast.date * 1000).toLocaleDateString('fa-IR', { weekday: 'long' });
             const persianDate = getPersianDate(forecast.date);
-            const pop = Math.round(forecast.pop * 100);
-            const humidity = forecast.humidity;
-            const windSpeed = Math.round(forecast.windSpeed * 3.6);
-            const iconUrl = `https://openweathermap.org/img/wn/${forecast.icon}@2x.png`;
-            const description = forecast.description;
+            const description = forecast.description[0];
+            const fontAwesomeIconClass = getWeatherIconClass(forecast.icon, true);
 
             const card = document.createElement('div');
             card.classList.add('forecast-card');
@@ -629,13 +702,13 @@
                 <h4>${date}</h4>
                 <p>${persianDate}</p>
                 <div class="weather-icon">
-                    <img src="${iconUrl}" alt="${description}">
+                    <i class="fas ${fontAwesomeIconClass}"></i>
                 </div>
                 <p><strong>وضعیت:</strong> ${description}</p>
                 <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${minTemp}°C / ${maxTemp}°C</p>
-                <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${humidity}%</p>
-                <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeed}km/h</p>
-                <p><strong><span class="pop-color"><i class="fas fa-cloud-showers-heavy"></i> احتمال بارش:</span></strong> ${pop}%</p>
+                <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${avgHumidity}%</p>
+                <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${avgWindSpeed}km/h</p>
+                <p><strong><span class="pop-color"><i class="fas fa-cloud-showers-heavy"></i> احتمال بارش:</span></strong> ${maxPop}%</p>
             `;
             forecastDiv.appendChild(card);
         });
@@ -667,7 +740,7 @@
             displayForecast(forecastDataResponse);
 
         } catch (error) {
-            currentData.innerHTML = `<p>خطا در دریافت داده‌های هواشناسی. لطفاً بعداً دوباره تلاش کنید.</p>`;
+            currentData.innerHTML = `<p>خطا در دریافت داده‌های هواشناسی: ${error.message}. لطفاً بعداً دوباره تلاش کنید.</p>`;
             forecastDiv.innerHTML = '';
             console.error('Error fetching weather data:', error);
         }
@@ -712,8 +785,6 @@
     });
 
     document.addEventListener('DOMContentLoaded', loadComments);
-
 </script>
 </body>
 </html>
-            
