@@ -321,6 +321,10 @@
         .wind-color { color: var(--wind-color); }
         .pop-color { color: var(--pop-color); }
         .current-city-name { color: var(--accent-color); font-weight: 700; }
+        .temp-min-max { color: var(--temp-color); }
+        .temp-min-max strong { font-size: 1.2em; }
+        .temp-min-max i { font-size: 0.8em; }
+
 
         footer {
             text-align: center;
@@ -564,8 +568,7 @@
             <p><strong>تاریخ:</strong> ${persianDate}</p>
             <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(data.main.temp)}°C</p>
             <p><strong>وضعیت:</strong> ${description}</p>
-            <p><strong><span class="temp-color">حداقل دما:</span></strong> ${Math.round(data.main.temp_min)}°C</p>
-            <p><strong><span class="temp-color">حداکثر دما:</span></strong> ${Math.round(data.main.temp_max)}°C</p>
+            <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${Math.round(data.main.temp_min)}°C / ${Math.round(data.main.temp_max)}°C</p>
             <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${data.main.humidity}%</p>
             <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${Math.round(data.wind.speed * 3.6)}km/h</p>
         `;
@@ -574,31 +577,51 @@
     function displayForecast(data) {
         forecastDiv.innerHTML = '';
         
-        // فیلتر کردن پیش‌بینی‌ها برای ساعت ۱۲:۰۰ ظهر و حذف پیش‌بینی روز جاری
-        const middayForecasts = data.list.filter(item => item.dt_txt.includes('12:00:00'));
+        const dailyForecasts = {};
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        const now = new Date();
-        const relevantForecasts = middayForecasts.filter(forecast => {
-            const forecastDate = new Date(forecast.dt * 1000);
-            return forecastDate.getDate() !== now.getDate();
-        }).slice(0, 5); // فقط ۵ روز آینده را نگه می‌داریم
+        data.list.forEach(item => {
+            const itemDate = new Date(item.dt * 1000);
+            itemDate.setHours(0, 0, 0, 0);
+            const dateStr = itemDate.toISOString().split('T')[0];
 
-        if (relevantForecasts.length === 0) {
+            if (itemDate > today) { // فقط روزهای آینده
+                if (!dailyForecasts[dateStr]) {
+                    dailyForecasts[dateStr] = {
+                        temps: [],
+                        humidity: item.main.humidity,
+                        windSpeed: item.wind.speed,
+                        pop: item.pop,
+                        date: item.dt,
+                        icon: item.weather[0].icon,
+                        description: item.weather[0].description
+                    };
+                }
+                dailyForecasts[dateStr].temps.push(item.main.temp);
+            }
+        });
+
+        const sortedDates = Object.keys(dailyForecasts).sort();
+        const futureDays = sortedDates.slice(0, 5); // فقط 5 روز آینده را می‌گیریم
+
+        if (futureDays.length === 0) {
             forecastDiv.innerHTML = `<p>پیش‌بینی ۵ روزه موجود نیست.</p>`;
             return;
         }
-        
-        relevantForecasts.forEach(forecast => {
-            const iconCode = forecast.weather[0].icon;
-            // فرض می‌کنیم پیش‌بینی ظهر همیشه روز است و n را با d جایگزین می‌کنیم
-            const iconToShow = iconCode.replace('n', 'd');
-            const iconUrl = `https://openweathermap.org/img/wn/${iconToShow}@2x.png`;
+
+        futureDays.forEach(dateStr => {
+            const forecast = dailyForecasts[dateStr];
+            const minTemp = Math.round(Math.min(...forecast.temps));
+            const maxTemp = Math.round(Math.max(...forecast.temps));
             
-            const date = new Date(forecast.dt * 1000).toLocaleDateString('fa-IR', { weekday: 'long' });
-            const persianDate = getPersianDate(forecast.dt);
+            const date = new Date(forecast.date * 1000).toLocaleDateString('fa-IR', { weekday: 'long' });
+            const persianDate = getPersianDate(forecast.date);
             const pop = Math.round(forecast.pop * 100);
-            const humidity = forecast.main.humidity;
-            const windSpeed = Math.round(forecast.wind.speed * 3.6);
+            const humidity = forecast.humidity;
+            const windSpeed = Math.round(forecast.windSpeed * 3.6);
+            const iconUrl = `https://openweathermap.org/img/wn/${forecast.icon}@2x.png`;
+            const description = forecast.description;
 
             const card = document.createElement('div');
             card.classList.add('forecast-card');
@@ -606,10 +629,10 @@
                 <h4>${date}</h4>
                 <p>${persianDate}</p>
                 <div class="weather-icon">
-                    <img src="${iconUrl}" alt="${forecast.weather[0].description}">
+                    <img src="${iconUrl}" alt="${description}">
                 </div>
-                <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(forecast.main.temp)}°C</p>
-                <p><strong>وضعیت:</strong> ${forecast.weather[0].description}</p>
+                <p><strong>وضعیت:</strong> ${description}</p>
+                <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${minTemp}°C / ${maxTemp}°C</p>
                 <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${humidity}%</p>
                 <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeed}km/h</p>
                 <p><strong><span class="pop-color"><i class="fas fa-cloud-showers-heavy"></i> احتمال بارش:</span></strong> ${pop}%</p>
@@ -693,3 +716,4 @@
 </script>
 </body>
 </html>
+            
