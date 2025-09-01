@@ -11,9 +11,6 @@
             --primary-color: #00838f;
             --secondary-color: #00bfa5;
             --accent-color: #00796b;
-            --background-gradient: linear-gradient(to bottom, #f0f4f7, #ffffff);
-            --header-gradient: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            --night-header-gradient: linear-gradient(135deg, #1a237e, #303f9f);
             --card-bg: #ffffff;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             --card-hover-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
@@ -22,22 +19,37 @@
             --humidity-color: #0277bd;
             --wind-color: #558b2f;
             --pop-color: #03a9f4;
+            --sunrise-color: #ff9800;
+            --sunset-color: #e53935;
+            --feels-like-color: #9c27b0;
+            --pressure-color: #4caf50;
+            --wind-direction-color: #ff5722;
         }
 
         body {
             font-family: 'Vazirmatn', sans-serif;
             direction: rtl;
-            background: var(--background-gradient);
+            background-color: #f0f4f7;
             margin: 0;
             padding: 0;
             color: #333;
             line-height: 1.6;
+            transition: background-color 1s ease-in-out;
+            position: relative;
         }
+
+        /* Dynamic Backgrounds */
+        body.bg-clear { background: linear-gradient(to bottom, #87ceeb, #e0f4f7); }
+        body.bg-clouds { background: linear-gradient(to bottom, #b0bec5, #eceff1); }
+        body.bg-rain { background: linear-gradient(to bottom, #607d8b, #cfd8dc); }
+        body.bg-snow { background: linear-gradient(to bottom, #cfd8dc, #f0f4f7); }
+        body.bg-thunderstorm { background: linear-gradient(to bottom, #424242, #757575); }
+        body.bg-mist { background: linear-gradient(to bottom, #9e9e9e, #bdbdbe); }
 
         header {
             text-align: center;
             padding: 40px 20px;
-            background: var(--header-gradient);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             position: relative;
@@ -45,10 +57,14 @@
             border-bottom-left-radius: var(--border-radius);
             border-bottom-right-radius: var(--border-radius);
             transition: background 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        
+
         header.night-header {
-            background: var(--night-header-gradient);
+            background: linear-gradient(135deg, #1a237e, #303f9f);
         }
 
         header h1 {
@@ -62,16 +78,27 @@
             font-size: 1.1em;
             font-weight: 400;
         }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/connected-dots.png');
-            opacity: 0.1;
+        
+        #header-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header-message {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            font-weight: 400;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: none; /* Initially hidden */
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .container {
@@ -92,7 +119,7 @@
         .card:hover {
             box-shadow: var(--card-hover-shadow);
         }
-        
+
         .selectors-section {
             display: flex;
             flex-wrap: wrap;
@@ -141,6 +168,23 @@
             text-align: center;
         }
 
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden { display: none; }
+
         h2 {
             font-size: 2em;
             color: var(--accent-color);
@@ -149,7 +193,7 @@
             margin-bottom: 20px;
             display: inline-block;
         }
-        
+
         .weather-data-card {
             background: linear-gradient(145deg, #e0f7fa, #ffffff);
             padding: 30px;
@@ -191,13 +235,12 @@
             max-height: 100%;
         }
 
-
         .weather-data-card p {
             margin: 10px 0;
             font-size: 1.1em;
             text-align: right;
         }
-        
+
         .weather-data-card p strong {
             display: inline-block;
             min-width: 120px;
@@ -206,7 +249,7 @@
         .weather-data-card strong {
             color: var(--accent-color);
         }
-        
+
         #forecast {
             display: flex;
             justify-content: center;
@@ -252,7 +295,7 @@
             min-width: 100px;
             text-align: right;
         }
-        
+
         #feedback-section {
             background-color: #fffde7;
             padding: 30px;
@@ -318,7 +361,7 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             animation: slideInRight 0.5s ease-out;
         }
-        
+
         @keyframes slideInRight {
             from {
                 opacity: 0;
@@ -339,7 +382,6 @@
         .temp-min-max strong { font-size: 1.2em; }
         .temp-min-max i { font-size: 0.8em; }
 
-
         footer {
             text-align: center;
             padding: 20px;
@@ -348,7 +390,36 @@
             font-size: 14px;
             box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.1);
         }
-        
+
+        /* Rain effect styling */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .drop {
+            position: absolute;
+            background-color: #fff;
+            opacity: 0.6;
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -382,8 +453,10 @@
 </head>
 <body>
 <header>
+    <div id="header-icon"></div>
     <h1>هواشناسی ایران 🇮🇷</h1>
     <p id="live-time">در حال بارگذاری زمان...</p>
+    <p id="header-message" class="header-message">آیکون بالای سایت وضعیت فعلی آب‌وهوا را نشان می‌دهد (آفتابی، ابری، بارانی و...)</p>
 </header>
 <main class="container">
     <section class="card selectors-section">
@@ -396,7 +469,9 @@
             <select id="city-select" disabled><option value="">شهر را انتخاب کنید</option></select>
         </div>
     </section>
+
     <section id="weather-info">
+        <div id="loading-spinner" class="spinner hidden"></div>
         <div id="current-weather" class="card">
             <h2><span id="current-city-title">وضعیت فعلی</span></h2>
             <div class="weather-data-card" id="current-data">
@@ -433,22 +508,22 @@
 <script>
     const API_KEY = 'bf8755006c2fc6e2762533c174860bf6';
     const provinces = {
-        "آذربایجان شرقی": ["تبریز","مراغه","مرند","اهر","میانه","بناب","شبستر","جلفا","سهند","سراب","هشترود","کلیبر","اسکو","بستان‌آباد","آذرشهر","هریس","عجب‌شیر","ورزقان","ملکان","قره‌آغاج","مبارک‌شهر"],
-        "آذربایجان غربی": ["ارومیه","خوی","مهاباد","بوکان","میاندوآب","سلماس","پیرانشهر","نقده","شاهین‌دژ","سردشت","ماکو","تکاب","اشنویه","قره‌ضیاءالدین","چایپاره","پلدشت","شوط","سیروان","ربط","بازرگان","نوشین‌شهر","قوشچی"],
-        "اردبیل": ["اردبیل","پارس‌آباد","مشگین‌شهر","خلخال","نمین","نیر","گرمی","بیله‌سوار","کوثر","سرعین","گیوی","اصلاندوز","هیر","جعفرآباد","فیروزآباد","کلور","تازه کند","کوراییم"],
-        "اصفهان": ["اصفهان","کاشان","خمینی‌شهر","نجف‌آباد","فلاورجان","شاهین‌شهر","شهرضا","مبارکه","زرین‌شهر","گلپایگان","خوانسار","نایین","درچه","اردستان","چادگان","دولت‌آباد","لنجان","میمه","فولادشهر","کوهپایه","آران و بیدگل","ورزنه"],
-        "البرز": ["کرج","فردیس","کمال‌شهر","نظرآباد","محمدشهر","ماهدشت","مهرشهر","هشتگرد","اشتهارد","طالقان","چهارباغ","گوهردشت","کوهسار","کوهک","ساوجبلاغ"],
-        "ایلام": ["ایلام","دهلران","دره‌شهر","ایوان","مهران","آبدانان","سرابله","چرداول","بدره","ملکشاهی","لومار","موسیان","چوار","میمه"],
-        "بوشهر": ["بوشهر","برازجان","گناوه","خورموج","کنگان","عسلویه","جم","دیلم","دیر","شبانکاره","کاکی","اهرم","خارگ","بندر سیراف","بندر ریگ","بندر دیر","آبپخش","سعدآباد","دلوار"],
-        "تهران": ["تهران","اسلام‌شهر","شهریار","قدس","ملارد","نسیم‌شهر","ری","رباط‌کریم","ورامین","قرچک","پاکدشت","اندیشه","پردیس","دماوند","بومهن","شریف‌آباد","رودهن","کهریزک","باغستان","فردوسیه","شهر ری","باقرشهر"],
-        "چهارمحال و بختیاری": ["شهرکرد","بروجن","فارسان","لردگان","اردل","کوهرنگ","سامان","بن","کیار","فرخ‌شهر","بلداجی","سورشجان","چلگرد","جونقان","گندمان","ناغان","شلمزار"],
-        "خراسان جنوبی": ["بیرجند","قائن","فردوس","نهبندان","طبس","سرایان","بشرویه","خوسف","اسدیه","درمیان","زیرکوه","آیسک"],
+        "آذربایجان شرقی": ["تبریز","مراغه","مرند","اهر","میانه","بناب","شبستر","جلفا","سهند","سراب","هشترود","کلیبر","اسکو","بستان‌آباد","آذرشهر","هریس","عجب‌شیر","ورزقان","ملکان","قره‌آغاج","مبارک‌شهر","تسوج","خسروشاه","صوفیان","شرفخانه","ترکمنچای","باروق","لیلان","شهر جدید سهند"],
+        "آذربایجان غربی": ["ارومیه","خوی","مهاباد","بوکان","میاندوآب","سلماس","پیرانشهر","نقده","شاهین‌دژ","سردشت","ماکو","تکاب","اشنویه","قره‌ضیاءالدین","چایپاره","پلدشت","شوط","سیروان","ربط","بازرگان","نوشین‌شهر","قوشچی","کرمانج","یولاگلدی","سیلوانا"],
+        "اردبیل": ["اردبیل","پارس‌آباد","مشگین‌شهر","خلخال","نمین","نیر","گرمی","بیله‌سوار","کوثر","سرعین","گیوی","اصلاندوز","هیر","جعفرآباد","فیروزآباد","کلور","تازه کند","کوراییم","اسلام‌آباد","پویاشهر","رضی"],
+        "اصفهان": ["اصفهان","کاشان","خمینی‌شهر","نجف‌آباد","فلاورجان","شاهین‌شهر","شهرضا","مبارکه","زرین‌شهر","گلپایگان","خوانسار","نایین","درچه","اردستان","چادگان","دولت‌آباد","لنجان","میمه","فولادشهر","کوهپایه","آران و بیدگل","ورزنه","دهاقان","سمیرم"],
+        "البرز": ["کرج","فردیس","کمال‌شهر","نظرآباد","محمدشهر","ماهدشت","مهرشهر","هشتگرد","اشتهارد","طالقان","چهارباغ","گوهردشت","کوهسار","کوهک","ساوجبلاغ","هشتگرد جدید"],
+        "ایلام": ["ایلام","دهلران","دره‌شهر","ایوان","مهران","آبدانان","سرابله","چرداول","بدره","ملکشاهی","لومار","موسیان","چوار","میمه","ارکواز"],
+        "بوشهر": ["بوشهر","برازجان","گناوه","خورموج","کنگان","عسلویه","جم","دیلم","دیر","شبانکاره","کاکی","اهرم","خارگ","بندر سیراف","بندر ریگ","بندر دیر","آبپخش","سعدآباد","دلوار","چغادک"],
+        "تهران": ["تهران","اسلام‌شهر","شهریار","قدس","ملارد","نسیم‌شهر","ری","رباط‌کریم","ورامین","قرچک","پاکدشت","اندیشه","پردیس","دماوند","بومهن","شریف‌آباد","رودهن","کهریزک","باغستان","فردوسیه","شهر ری","باقرشهر","واوان","فشافویه","چیتگر"],
+        "چهارمحال و بختیاری": ["شهرکرد","بروجن","فارسان","لردگان","اردل","کوهرنگ","سامان","بن","کیار","فرخ‌شهر","بلداجی","سورشجان","چلگرد","جونقان","گندمان","ناغان","شلمزار","باباحیدر","دشتک"],
+        "خراسان جنوبی": ["بیرجند","قائن","فردوس","نهبندان","طبس","سرایان","بشرویه","خوسف","اسدیه","درمیان","زیرکوه","آیسک","قهستان","مود","دیهوک"],
         "خراسان رضوی": ["مشهد","سبزوار","نیشابور","تربت حیدریه","کاشمر","قوچان","بردسکن","چناران","فریمان","خواف","تایباد","تربت جام","گناباد","درگز","سرخس","کلات","رشتخوار","مه ولات","طرقبه","شاندیز","بجستان","خلیل‌آباد"],
         "خراسان شمالی": ["بجنورد","شیروان","اسفراین","جاجرم","مانه و سملقان","فاروج","گرمه","راز و جرگلان","قاضی","درق","ایور","آوا","لوجلی","غلامان","زیارت","آشخانه"],
-        "خوزستان": ["اهواز","دزفول","آبادان","خرمشهر","اندیمشک","مسجدسلیمان","ایذه","بهبهان","شوشتر","ماهشهر","سوسنگرد","شوش","باغ‌ملک","رامشیر","شادگان","امیدیه","هندیجان","لالی","رامهرمز","دشت آزادگان"],
-        "زنجان": ["زنجان","ابهر","خرمدره","قیدار","سلطانیه","ماهنشان","سجاس","زرین‌آباد","دندی","ارمغانخانه","نوربهار","سجین","هیدج","صایین‌قلعه","آب‌بر","سهرورد"],
+        "خوزستان": ["اهواز","دزفول","آبادان","خرمشهر","اندیمشک","مسجدسلیمان","ایذه","بهبهان","شوشتر","ماهشهر","سوسنگرد","شوش","باغ‌ملک","رامشیر","شادگان","امیدیه","هندیجان","لالی","رامهرمز","دشت آزادگان","اندیکا","شوش","دشت‌آزادگان"],
+        "زنجان": ["زنجان","ابهر","خرمدره","قیدار","سلطانیه","ماهنشان","سجاس","زرین‌آباد","دندی","ارمغانخانه","نوربهار","سجین","هیدج","صایین‌قلعه","آب‌بر","سهرورد","چورزق"],
         "سمنان": ["سمنان","شاهرود","دامغان","گرمسار","مهدی‌شهر","ایوانکی","بسطام","میامی","سرخه","دیباج","بیارجمند","شهمیرزاد","کالپوش","مجین","حسین‌آباد"],
-        "سیستان و بلوچستان": ["زاهدان","زابل","ایرانشهر","چابهار","خاش","سراوان","کنارک","نیک‌شهر","سرباز","راسک","فنوج","مهرستان","قصرقند","سیب و سوران","دشتیاری","دلگان"],
+        "سیستان و بلوچستان": ["زاهدان","زابل","ایرانشهر","چابهار","خاش","سراوان","کنارک","نیک‌شهر","سرباز","راسک","فنوج","مهرستان","قصرقند","سیب و سوران","دشتیاری","دلگان","پیشین"],
         "فارس": ["شیراز","مرودشت","کازرون","جهرم","فسا","لار","فیروزآباد","اقلید","داراب","لامرد","نورآباد","ممسنی","نی‌ریز","آباده","صفاشهر","استهبان","گراش","خنج","قیر و کارزین","پاسارگاد","بوانات","سروستان"],
         "قزوین": ["قزوین","تاکستان","الوند","اقبالیه","آبیک","بیدستان","بوئین‌زهرا","شال","مهرگان","اسفرورین","کوهین","آوج","ضیاءآباد","خاکعلی"],
         "قم": ["قم","جعفریه","کهک","سلفچگان","دستجرد","قنوات","کوشا","قمصر"],
@@ -466,15 +541,67 @@
         "یزد": ["یزد","میبد","اردکان","تفت","بافق","ابرکوه","مهریز","اشکذر","هرات","شاهدیه","حمیدیا","زارچ","نیر","مروست","عقدا","بهاباد","احمدآباد","سایبان","خضرآباد","ندوشن"]
     };
 
+    const weatherBackgrounds = {
+        '01': 'bg-clear',
+        '02': 'bg-clouds',
+        '03': 'bg-clouds',
+        '04': 'bg-clouds',
+        '09': 'bg-rain',
+        '10': 'bg-rain',
+        '11': 'bg-thunderstorm',
+        '13': 'bg-snow',
+        '50': 'bg-mist'
+    };
+
     const provinceSelect = document.getElementById('province-select');
     const citySelect = document.getElementById('city-select');
     const liveTimeElement = document.getElementById('live-time');
     const header = document.querySelector('header');
+    const headerIcon = document.getElementById('header-icon');
+    const headerMessage = document.getElementById('header-message');
     const currentData = document.getElementById('current-data');
     const forecastDiv = document.getElementById('forecast');
     const feedbackForm = document.getElementById('feedback-form');
     const commentsList = document.getElementById('comments-list');
     const currentCityTitle = document.getElementById('current-city-title');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const body = document.body;
+
+    // Rain effect setup
+    const rainContainer = document.createElement('div');
+    rainContainer.className = 'rain hidden';
+    document.body.appendChild(rainContainer);
+
+    function createRaindrops() {
+        if (!rainContainer.classList.contains('hidden')) {
+            const drop = document.createElement('div');
+            drop.className = 'drop';
+            drop.style.left = `${Math.random() * 100}vw`;
+            drop.style.width = `${Math.random() * 2 + 1}px`;
+            drop.style.height = `${Math.random() * 40 + 20}px`;
+            drop.style.animationDuration = `${Math.random() * 1 + 0.5}s`;
+            drop.style.opacity = Math.random();
+            rainContainer.appendChild(drop);
+            setTimeout(() => drop.remove(), 1000); // Remove after animation
+        }
+    }
+
+    let rainInterval = null;
+
+    function startRainEffect() {
+        if (!rainInterval) {
+            rainContainer.classList.remove('hidden');
+            rainInterval = setInterval(createRaindrops, 50);
+        }
+    }
+
+    function stopRainEffect() {
+        if (rainInterval) {
+            clearInterval(rainInterval);
+            rainInterval = null;
+            rainContainer.classList.add('hidden');
+        }
+    }
 
     function isDay() {
         const hour = new Date().getHours();
@@ -513,26 +640,17 @@
         });
     }
 
-    function getWeatherIconClass(iconCode, isForecast = false) {
+    function getWeatherIconClass(iconCode) {
         const prefix = 'fa-';
         let iconClass = '';
-        let isDayIcon = iconCode.endsWith('d');
-
-        // For forecast, we determine day/night based on the time of the forecast data, 
-        // not the current time. The OpenWeatherMap icon code already handles this.
-        if (isForecast) {
-             // The isDayIcon variable is already correctly set by the iconCode
-        } else {
-             // For current weather, use the isDay() function to be more reliable
-             isDayIcon = isDay();
-        }
+        const dayNightCode = iconCode.slice(-1);
 
         switch (iconCode.substring(0, 2)) {
             case '01': // Clear sky
-                iconClass = isDayIcon ? 'sun' : 'moon';
+                iconClass = (dayNightCode === 'd') ? 'sun' : 'moon';
                 break;
             case '02': // Few clouds
-                iconClass = isDayIcon ? 'cloud-sun' : 'cloud-moon';
+                iconClass = (dayNightCode === 'd') ? 'cloud-sun' : 'cloud-moon';
                 break;
             case '03': // Scattered clouds
             case '04': // Broken clouds, overcast clouds
@@ -540,7 +658,7 @@
                 break;
             case '09': // Shower rain
             case '10': // Rain
-                iconClass = isDayIcon ? 'cloud-sun-rain' : 'cloud-moon-rain';
+                iconClass = (dayNightCode === 'd') ? 'cloud-sun-rain' : 'cloud-moon-rain';
                 break;
             case '11': // Thunderstorm
                 iconClass = 'cloud-bolt';
@@ -557,30 +675,48 @@
         return `${prefix}${iconClass}`;
     }
 
-    for (const province in provinces) {
-        const option = document.createElement('option');
-        option.value = province;
-        option.textContent = province;
-        provinceSelect.appendChild(option);
+    function setDynamicBackground(iconCode) {
+        const bgClass = weatherBackgrounds[iconCode.substring(0, 2)] || 'bg-clear';
+        body.className = '';
+        body.classList.add(bgClass);
+
+        if (iconCode.substring(0, 2) === '09' || iconCode.substring(0, 2) === '10') {
+            startRainEffect();
+        } else {
+            stopRainEffect();
+        }
     }
 
-    provinceSelect.addEventListener('change', () => {
-        const selectedProvince = provinceSelect.value;
-        citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
-        citySelect.disabled = !selectedProvince;
-        currentCityTitle.innerHTML = `وضعیت فعلی`;
-        currentData.innerHTML = '<p>لطفاً یک استان و شهر را انتخاب کنید.</p>';
-        forecastDiv.innerHTML = '';
+    function getWindDirection(degrees) {
+        const directions = ["شمال", "شمال شرق", "شرق", "جنوب شرق", "جنوب", "جنوب غرب", "غرب", "شمال غرب"];
+        const index = Math.round(degrees / 45) % 8;
+        return directions[index];
+    }
 
-        if (selectedProvince) {
-            provinces[selectedProvince].forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
+    function populateDropdowns() {
+        for (const province in provinces) {
+            const option = document.createElement('option');
+            option.value = province;
+            option.textContent = province;
+            provinceSelect.appendChild(option);
         }
-    });
+
+        provinceSelect.addEventListener('change', () => {
+            const selectedProvince = provinceSelect.value;
+            citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
+            citySelect.disabled = !selectedProvince;
+            if (selectedProvince) {
+                const uniqueCities = [...new Set(provinces[selectedProvince])].sort();
+                uniqueCities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            }
+            clearWeatherDisplay();
+        });
+    }
 
     citySelect.addEventListener('change', () => {
         const selectedCity = citySelect.value;
@@ -588,30 +724,38 @@
             currentCityTitle.innerHTML = `وضعیت فعلی در <span class="current-city-name">${selectedCity}</span>`;
             fetchCoordinates(selectedCity);
         } else {
-            currentCityTitle.innerHTML = 'وضعیت فعلی';
-            currentData.innerHTML = '<p>لطفاً یک شهر را انتخاب کنید.</p>';
-            forecastDiv.innerHTML = '';
+            clearWeatherDisplay();
         }
     });
 
+    function clearWeatherDisplay() {
+        currentCityTitle.innerHTML = 'وضعیت فعلی';
+        currentData.innerHTML = '<p>لطفاً یک استان و شهر را انتخاب کنید.</p>';
+        forecastDiv.innerHTML = '';
+        body.className = '';
+        stopRainEffect();
+        headerIcon.innerHTML = '';
+        headerMessage.style.display = 'none';
+    }
+
     async function fetchCoordinates(city) {
-        currentData.innerHTML = '<p>در حال یافتن مختصات شهر...</p>';
-        forecastDiv.innerHTML = '<p>در حال بارگذاری...</p>';
+        loadingSpinner.classList.remove('hidden');
+        currentData.innerHTML = '';
+        forecastDiv.innerHTML = '';
         const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city},IR&limit=1&appid=${API_KEY}`;
         try {
             const response = await fetch(geoUrl);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
             const data = await response.json();
             if (data.length > 0) {
                 const { lat, lon } = data[0];
                 fetchWeather(lat, lon, city);
             } else {
+                loadingSpinner.classList.add('hidden');
                 currentData.innerHTML = `<p>مختصات برای شهر "${city}" یافت نشد. لطفاً شهر دیگری را انتخاب کنید.</p>`;
                 forecastDiv.innerHTML = '';
             }
         } catch (error) {
+            loadingSpinner.classList.add('hidden');
             currentData.innerHTML = `<p>خطا در دریافت مختصات: ${error.message}. لطفاً بعداً دوباره تلاش کنید.</p>`;
             forecastDiv.innerHTML = '';
             console.error('Error fetching coordinates:', error);
@@ -619,6 +763,7 @@
     }
 
     function displayCurrentWeather(data, cityName) {
+        loadingSpinner.classList.add('hidden');
         if (data.cod !== 200) {
             currentData.innerHTML = `<p>خطا در دریافت داده برای شهر: ${cityName || 'نامشخص'}</p>`;
             return;
@@ -629,17 +774,31 @@
         const persianDate = getPersianDate(data.dt);
         const description = data.weather[0].description;
         const windSpeedKmH = Math.round(data.wind.speed * 3.6);
+        const windDirection = getWindDirection(data.wind.deg);
+        const sunriseTime = new Date(data.sys.sunrise * 1000).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        const sunsetTime = new Date(data.sys.sunset * 1000).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+
+        setDynamicBackground(iconCode);
+
+        // Update header icon and show message
+        headerIcon.innerHTML = `<i class="fas ${fontAwesomeIconClass}"></i>`;
+        headerMessage.style.display = 'block';
 
         currentData.innerHTML = `
             <div class="weather-icon">
-                <i class="fas ${fontAwesomeIconClass}"></i> 
+                <i class="fas ${fontAwesomeIconClass}"></i>
             </div>
             <p><strong>تاریخ:</strong> ${persianDate}</p>
             <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(data.main.temp)}°C</p>
+            <p><strong><span class="feels-like-color">دمای محسوس:</span></strong> ${Math.round(data.main.feels_like)}°C</p>
             <p><strong>وضعیت:</strong> ${description}</p>
             <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${Math.round(data.main.temp_min)}°C / ${Math.round(data.main.temp_max)}°C</p>
             <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${data.main.humidity}%</p>
             <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeedKmH}km/h</p>
+            <p><strong><span class="wind-direction-color"><i class="fas fa-compass"></i> جهت باد:</span></strong> ${windDirection}</p>
+            <p><strong><span class="pressure-color"><i class="fas fa-arrow-down"></i> فشار هوا:</span></strong> ${data.main.pressure} hPa</p>
+            <p><strong><span class="sunrise-color"><i class="fas fa-sun"></i> طلوع آفتاب:</span></strong> ${sunriseTime}</p>
+            <p><strong><span class="sunset-color"><i class="fas fa-moon"></i> غروب آفتاب:</span></strong> ${sunsetTime}</p>
         `;
     }
 
@@ -653,7 +812,6 @@
             const itemDate = new Date(item.dt * 1000);
             itemDate.setHours(0, 0, 0, 0);
 
-            // Only consider data for days after today
             if (itemDate > today) {
                 const dateStr = itemDate.toISOString().split('T')[0];
                 if (!dailyForecasts[dateStr]) {
@@ -662,7 +820,7 @@
                         humidity: [],
                         windSpeed: [],
                         pop: [],
-                        description: [],
+                        description: item.weather[0].description,
                         icon: item.weather[0].icon,
                         date: item.dt
                     };
@@ -671,7 +829,6 @@
                 dailyForecasts[dateStr].humidity.push(item.main.humidity);
                 dailyForecasts[dateStr].windSpeed.push(item.wind.speed);
                 dailyForecasts[dateStr].pop.push(item.pop);
-                dailyForecasts[dateStr].description.push(item.weather[0].description);
             }
         });
 
@@ -693,8 +850,7 @@
 
             const date = new Date(forecast.date * 1000).toLocaleDateString('fa-IR', { weekday: 'long' });
             const persianDate = getPersianDate(forecast.date);
-            const description = forecast.description[0];
-            const fontAwesomeIconClass = getWeatherIconClass(forecast.icon, true);
+            const fontAwesomeIconClass = getWeatherIconClass(forecast.icon);
 
             const card = document.createElement('div');
             card.classList.add('forecast-card');
@@ -704,7 +860,7 @@
                 <div class="weather-icon">
                     <i class="fas ${fontAwesomeIconClass}"></i>
                 </div>
-                <p><strong>وضعیت:</strong> ${description}</p>
+                <p><strong>وضعیت:</strong> ${forecast.description}</p>
                 <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${minTemp}°C / ${maxTemp}°C</p>
                 <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${avgHumidity}%</p>
                 <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${avgWindSpeed}km/h</p>
@@ -715,8 +871,9 @@
     }
 
     async function fetchWeather(lat, lon, city) {
-        currentData.innerHTML = '<p>در حال بارگذاری داده‌های هواشناسی...</p>';
-        forecastDiv.innerHTML = '<p>در حال بارگذاری...</p>';
+        loadingSpinner.classList.remove('hidden');
+        currentData.innerHTML = '';
+        forecastDiv.innerHTML = '';
         const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
         const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
 
@@ -743,6 +900,8 @@
             currentData.innerHTML = `<p>خطا در دریافت داده‌های هواشناسی: ${error.message}. لطفاً بعداً دوباره تلاش کنید.</p>`;
             forecastDiv.innerHTML = '';
             console.error('Error fetching weather data:', error);
+        } finally {
+            loadingSpinner.classList.add('hidden');
         }
     }
 
@@ -764,7 +923,7 @@
         e.preventDefault();
         const name = document.getElementById('feedback-name').value.trim();
         const comment = document.getElementById('feedback-comment').value.trim();
-        
+
         if (!name || !comment) {
             alert('لطفاً نام و نظر خود را وارد کنید.');
             return;
@@ -784,7 +943,10 @@
         loadComments();
     });
 
-    document.addEventListener('DOMContentLoaded', loadComments);
+    document.addEventListener('DOMContentLoaded', () => {
+        populateDropdowns();
+        loadComments();
+    });
 </script>
 </body>
 </html>
