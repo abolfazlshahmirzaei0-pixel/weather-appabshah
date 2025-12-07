@@ -572,12 +572,13 @@
     // --- اصلاح نمایش زمان ایران (IRST) ---
 
     function getIranTime() {
-        // از Date برای ساخت شیء تاریخ استفاده می‌کنیم. توابع toLocaleString آن را به منطقه زمانی دلخواه تبدیل می‌کنند.
+        // برای تضمین دقت، ما فقط زمان فعلی را می‌گیریم و منطقه زمانی را هنگام فرمت‌بندی اعمال می‌کنیم.
         return new Date(); 
     }
 
     function getIranHour() {
         // برای گرفتن ساعت دقیق ایران (به عنوان یک عدد بین 0 تا 23)
+        // از فرمت انگلیسی استفاده می‌کنیم تا به درستی ساعت را استخراج کنیم.
         return parseInt(getIranTime().toLocaleTimeString('en-US', { hour: '2-digit', hour12: false, timeZone: 'Asia/Tehran' }));
     }
 
@@ -832,7 +833,7 @@
         // تاریخ امروز را برای فیلتر کردن پیش‌بینی‌های قبلی تنظیم می‌کنیم
         today.setHours(0, 0, 0, 0); 
         
-        // تابع برای استخراج تاریخ شمسی
+        // تابع برای استخراج کلید تاریخ شمسی برای گروه‌بندی
         const getIranianDateKey = (timestamp) => {
              return new Date(timestamp * 1000).toLocaleDateString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Tehran' });
         };
@@ -867,7 +868,8 @@
             const minTemp = Math.round(Math.min(...dayData.temps));
             const maxTemp = Math.round(Math.max(...dayData.temps));
             const avgTemp = Math.round(dayData.temps.reduce((sum, t) => sum + t, 0) / dayData.temps.length);
-            const maxPop = Math.round(Math.max(...dayData.pop));
+            // میانگین احتمال بارش را در نظر می‌گیریم
+            const avgPop = Math.round(dayData.pop.reduce((sum, p) => sum + p, 0) / dayData.pop.length);
 
             // پیدا کردن رایج‌ترین آیکون
             let mostFrequentIconCode = '';
@@ -879,8 +881,10 @@
                     mostFrequentIconCode = iconCode + 'd'; 
                 }
             }
-
-            const description = data.list.find(item => item.weather[0].icon.substring(0, 2) + 'd' === mostFrequentIconCode)?.weather[0].description || 'نامشخص';
+            
+            // پیدا کردن توضیحات مربوط به آیکون انتخاب شده
+            const descriptionItem = data.list.find(item => item.weather[0].icon.substring(0, 2) + 'd' === mostFrequentIconCode);
+            const description = descriptionItem ? descriptionItem.weather[0].description : 'نامشخص';
 
             return {
                 dayOfWeek: getPersianDay(dayData.dt),
@@ -888,7 +892,7 @@
                 minTemp,
                 maxTemp,
                 avgTemp,
-                maxPop,
+                avgPop,
                 iconCode: mostFrequentIconCode,
                 description
             };
@@ -920,7 +924,7 @@
                     <strong><i class="fas fa-arrow-up"></i> حداکثر:</strong> <span>${day.maxTemp}°C</span>
                 </p>
                 <p><strong>وضعیت:</strong> ${day.description}</p>
-                <p><strong><span class="pop-color">احتمال بارش:</span></strong> ${day.maxPop}%</p>
+                <p><strong><span class="pop-color">احتمال بارش:</span></strong> ${day.avgPop}%</p>
             `;
             forecastDiv.appendChild(forecastCard);
         });
@@ -929,6 +933,7 @@
     // --- مدیریت فرم نظرات ---
 
     function loadComments() {
+        // نظرات از حافظه مرورگر بارگیری می‌شوند (localStorage)
         const comments = JSON.parse(localStorage.getItem('weatherComments') || '[]');
         commentsList.innerHTML = '';
         comments.forEach(comment => {
