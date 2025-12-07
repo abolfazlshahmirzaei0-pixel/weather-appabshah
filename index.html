@@ -569,17 +569,25 @@
         }
     }
     
-    // --- اصلاح نمایش زمان ایران (IRST) ---
+    // --- اصلاح نهایی و مقاوم نمایش زمان ایران (IRST) ---
 
-    function getIranTime() {
-        // برای تضمین دقت، ما فقط زمان فعلی را می‌گیریم و منطقه زمانی را هنگام فرمت‌بندی اعمال می‌کنیم.
-        return new Date(); 
+    // تابع اصلی برای گرفتن زمان/تاریخ با منطقه زمانی ایران
+    function getIranTimeAccurate(options) {
+        // new Date().toLocaleString() تضمین می‌کند که timeZone اعمال شود.
+        return new Date().toLocaleString('fa-IR', {
+            timeZone: 'Asia/Tehran',
+            ...options
+        });
     }
 
     function getIranHour() {
-        // برای گرفتن ساعت دقیق ایران (به عنوان یک عدد بین 0 تا 23)
-        // از فرمت انگلیسی استفاده می‌کنیم تا به درستی ساعت را استخراج کنیم.
-        return parseInt(getIranTime().toLocaleTimeString('en-US', { hour: '2-digit', hour12: false, timeZone: 'Asia/Tehran' }));
+        // گرفتن ساعت در قالب 24 ساعته (فقط عدد) با منطقه زمانی ایران
+        const hourString = new Date().toLocaleString('en-US', { 
+            hour: '2-digit', 
+            hour12: false, 
+            timeZone: 'Asia/Tehran' 
+        });
+        return parseInt(hourString);
     }
 
     function isDay() {
@@ -589,19 +597,17 @@
     }
 
     function updateLiveTime() {
-        const now = getIranTime();
         const status = isDay() ? "روز" : "شب";
 
-        // تنظیم timeZone به Asia/Tehran برای اطمینان از نمایش ساعت ایران
-        const persianDateTime = now.toLocaleDateString('fa-IR', {
+        // دریافت زمان و تاریخ کامل ایران با فرمت فارسی
+        const persianDateTime = getIranTimeAccurate({
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            second: '2-digit',
-            timeZone: 'Asia/Tehran'
+            second: '2-digit'
         });
 
         liveTimeElement.textContent = `اکنون ${status} است، ${persianDateTime}`;
@@ -620,8 +626,7 @@
 
     function getPersianDate(timestamp) {
         const date = new Date(timestamp * 1000);
-        // استفاده از timeZone: 'Asia/Tehran' برای اطمینان از تاریخ شمسی صحیح
-        return date.toLocaleDateString('fa-IR', {
+        return date.toLocaleString('fa-IR', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
@@ -632,8 +637,7 @@
 
     function getPersianDay(timestamp) {
         const date = new Date(timestamp * 1000);
-        // استفاده از timeZone: 'Asia/Tehran' برای اطمینان از روز هفته صحیح
-        return date.toLocaleDateString('fa-IR', {
+        return date.toLocaleString('fa-IR', {
             weekday: 'long',
             timeZone: 'Asia/Tehran'
         });
@@ -799,9 +803,10 @@
         // تبدیل متر بر ثانیه به کیلومتر بر ساعت
         const windSpeedKmH = Math.round(data.wind.speed * 3.6); 
         const windDirection = getWindDirection(data.wind.deg);
-        // استفاده از timeZone: 'Asia/Tehran' برای زمان‌های طلوع و غروب
-        const sunriseTime = new Date(data.sys.sunrise * 1000).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
-        const sunsetTime = new Date(data.sys.sunset * 1000).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
+        
+        // استفاده از toLocaleString با timeZone برای نمایش دقیق زمان‌های طلوع و غروب ایران
+        const sunriseTime = new Date(data.sys.sunrise * 1000).toLocaleString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
+        const sunsetTime = new Date(data.sys.sunset * 1000).toLocaleString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
 
         setDynamicBackground(iconCode);
 
@@ -835,7 +840,7 @@
         
         // تابع برای استخراج کلید تاریخ شمسی برای گروه‌بندی
         const getIranianDateKey = (timestamp) => {
-             return new Date(timestamp * 1000).toLocaleDateString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Tehran' });
+             return new Date(timestamp * 1000).toLocaleString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Tehran' });
         };
 
         data.list.forEach(item => {
@@ -888,7 +893,7 @@
 
             return {
                 dayOfWeek: getPersianDay(dayData.dt),
-                persianDate: new Date(dayData.dt * 1000).toLocaleDateString('fa-IR', { month: 'short', day: 'numeric', timeZone: 'Asia/Tehran' }),
+                persianDate: new Date(dayData.dt * 1000).toLocaleString('fa-IR', { month: 'short', day: 'numeric', timeZone: 'Asia/Tehran' }),
                 minTemp,
                 maxTemp,
                 avgTemp,
@@ -921,7 +926,7 @@
                     <strong><i class="fas fa-arrow-down"></i> حداقل:</strong> <span>${day.minTemp}°C</span>
                 </p>
                 <p class="temp-min-max">
-                    <strong><i class="fas fa-arrow-up"></i> حداکثر:</strong> <span>${day.maxTemp}°C</span>
+                    <strong><i class="fas fa-arrow-up"></i> حداکده:</strong> <span>${day.maxTemp}°C</span>
                 </p>
                 <p><strong>وضعیت:</strong> ${day.description}</p>
                 <p><strong><span class="pop-color">احتمال بارش:</span></strong> ${day.avgPop}%</p>
@@ -953,7 +958,7 @@
             name: nameInput.value,
             comment: commentInput.value,
             // ثبت تاریخ و زمان با منطقه زمانی ایران
-            date: new Date().toLocaleDateString('fa-IR', { 
+            date: new Date().toLocaleString('fa-IR', { 
                 year: 'numeric', 
                 month: '2-digit', 
                 day: '2-digit', 
