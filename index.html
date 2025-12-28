@@ -3,478 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هواشناسی ایران 🇮🇷</title>
+    <title>هواشناسی هوشمند ایران 🇮🇷</title>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #00838f;
-            --secondary-color: #00bfa5;
-            --accent-color: #00796b;
-            --card-bg: #ffffff;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --card-hover-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
-            --border-radius: 20px;
-            --temp-color: #d32f2f;
-            --humidity-color: #0277bd;
-            --wind-color: #558b2f;
-            --pop-color: #03a9f4;
-            --sunrise-color: #ff9800;
-            --sunset-color: #e53935;
-            --feels-like-color: #9c27b0;
-            --pressure-color: #4caf50;
-            --wind-direction-color: #ff5722;
+            --primary: #00838f;
+            --secondary: #00bfa5;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
+
         body {
             font-family: 'Vazirmatn', sans-serif;
             direction: rtl;
-            background-color: #f0f4f7;
             margin: 0;
-            padding: 0;
-            color: #333;
-            line-height: 1.6;
-            transition: background-color 1s ease-in-out;
-            position: relative;
-        }
-        /* Dynamic Backgrounds */
-        body.bg-clear { background: linear-gradient(to bottom, #87ceeb, #e0f4f7); }
-        body.bg-clouds { background: linear-gradient(to bottom, #b0bec5, #eceff1); }
-        body.bg-rain { background: linear-gradient(to bottom, #607d8b, #cfd8dc); }
-        body.bg-snow { background: linear-gradient(to bottom, #cfd8dc, #f0f4f7); }
-        body.bg-thunderstorm { background: linear-gradient(to bottom, #424242, #757575); }
-        body.bg-mist { background: linear-gradient(to bottom, #9e9e9e, #bdbdbe); }
-        header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
-            border-bottom-left-radius: var(--border-radius);
-            border-bottom-right-radius: var(--border-radius);
-            transition: background 0.5s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        header.night-header {
-            background: linear-gradient(135deg, #1a237e, #303f9f);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 2.8em;
-            font-weight: 700;
-        }
-        header p {
-            margin: 10px 0 0;
-            font-size: 1.1em;
-            font-weight: 400;
-        }
-        #header-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-        .header-message {
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 8px 15px;
-            border-radius: 15px;
-            margin-top: 20px;
-            font-size: 0.9em;
-            font-weight: 400;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: none; /* Initially hidden */
-            animation: fadeIn 0.5s ease-in-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .container {
-            max-width: 960px;
-            margin: 30px auto;
-            padding: 20px;
-        }
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 30px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card:hover {
-            box-shadow: var(--card-hover-shadow);
-        }
-        .selectors-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .selector-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        select {
-            padding: 12px 20px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            min-width: 200px;
-            background-color: #f9f9f9;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-align: right;
-            -moz-appearance: none;
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: left 15px center;
-            padding-left: 40px;
-        }
-        select:hover {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 8px rgba(0, 191, 165, 0.2);
-        }
-        select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 8px rgba(0, 131, 143, 0.3);
-        }
-        #weather-info {
-            text-align: center;
-        }
-        .spinner {
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 40px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .hidden { display: none; }
-        h2 {
-            font-size: 2em;
-            color: var(--accent-color);
-            border-bottom: 2px solid #e0f2f1;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-        .weather-data-card {
-            background: linear-gradient(145deg, #e0f7fa, #ffffff);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            display: inline-block;
-            min-width: 380px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-            text-align: right;
-            margin-top: 20px;
-            animation: fadeIn 1s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .weather-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 15px;
-            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.1);
-            font-size: 4em;
-            color: var(--primary-color);
-        }
-        .weather-icon img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        .weather-data-card p {
-            margin: 10px 0;
-            font-size: 1.1em;
-            text-align: right;
-        }
-        .weather-data-card p strong {
-            display: inline-block;
-            min-width: 120px;
-        }
-        .weather-data-card strong {
-            color: var(--accent-color);
-        }
-        #forecast {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .forecast-card {
-            background: linear-gradient(145deg, #fdfdfd, #f0f4f7);
-            padding: 20px;
-            border-radius: 16px;
-            width: 180px;
-            text-align: right;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .forecast-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
-        }
-        .forecast-card .weather-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 10px;
-            font-size: 3em;
-        }
-        .forecast-card p {
-            font-size: 0.9em;
-            margin: 5px 0;
-        }
-        .forecast-card h4 {
-            text-align: center;
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-        .forecast-card p strong {
-            display: inline-block;
-            min-width: 100px;
-            text-align: right;
-        }
-        .forecast-card .temp-min-max {
-            text-align: center;
-            margin: 2px 0;
-            font-size: 1em;
-        }
-        .forecast-card .temp-min-max strong {
-            display: block;
-            min-width: unset;
-            font-size: 0.9em;
-            color: #616161;
-        }
-        .forecast-card .temp-min-max span {
-            color: var(--temp-color);
-            font-weight: bold;
+            background: #f0f4f7;
+            transition: all 0.5s ease;
         }
 
-        #feedback-section {
-            background-color: #fffde7;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        #feedback-form .form-group {
-            margin-bottom: 15px;
-        }
-        #feedback-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-        #feedback-form input, #feedback-form textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            transition: border-color 0.3s;
-        }
-        #feedback-form input:focus, #feedback-form textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-        #feedback-form button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 121, 107, 0.2);
-        }
-        #feedback-form button:hover {
-            background-color: #004d40;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 121, 107, 0.3);
-        }
-        #comments-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 25px;
-        }
-        #comments-list li {
-            background-color: #fff;
-            padding: 18px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-right: 5px solid var(--secondary-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            animation: slideInRight 0.5s ease-out;
-        }
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        .temp-color { color: var(--temp-color); }
-        .humidity-color { color: var(--humidity-color); }
-        .wind-color { color: var(--wind-color); }
-        .pop-color { color: var(--pop-color); }
-        .current-city-name { color: var(--accent-color); font-weight: 700; }
-        .temp-min-max { color: var(--temp-color); }
-        .temp-min-max strong { font-size: 1.2em; }
-        .temp-min-max i { font-size: 0.8em; }
-        footer {
+        /* هدر متحرک و هوشمند */
+        header {
             text-align: center;
-            padding: 20px;
-            background-color: #cfd8dc;
-            color: #555;
-            font-size: 14px;
-            box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.1);
+            padding: 50px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
-        /* Rain effect styling */
-        .rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
+
+        header.night-mode {
+            background: linear-gradient(135deg, #1a237e, #303f9f) !important;
         }
-        .drop {
-            position: absolute;
-            background-color: #fff;
-            opacity: 0.6;
-            animation: rain-fall linear infinite;
+
+        .container {
+            max-width: 1000px;
+            margin: -40px auto 40px;
+            padding: 0 20px;
         }
-        @keyframes rain-fall {
-            0% {
-                transform: translateY(-100px);
-                opacity: 0.6;
-            }
-            100% {
-                transform: translateY(100vh);
-                opacity: 0;
-            }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.3);
         }
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            .selectors-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .selector-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            select {
-                min-width: 100%;
-                text-align: right;
-            }
-            .weather-data-card {
-                min-width: auto;
-            }
-            .forecast-card {
-                width: 100%;
-                text-align: center;
-            }
-            .forecast-card p strong {
-                display: block;
-                min-width: unset;
-                text-align: center;
-            }
+
+        /* استایل انتخاب‌گرها */
+        .selectors {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-family: 'Vazirmatn';
+            min-width: 180px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* گرید پیش‌بینی */
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .forecast-item {
+            background: rgba(255,255,255,0.5);
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .forecast-item:hover { transform: translateY(-5px); background: #fff; }
+
+        .weather-icon { font-size: 3rem; color: var(--primary); margin-bottom: 10px; }
+        .temp-main { font-size: 3rem; font-weight: bold; color: #d32f2f; }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            .selectors { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-<header>
-    <div id="header-icon"></div>
-    <h1>هواشناسی ایران 🇮🇷</h1>
-    <p id="live-time">در حال بارگذاری زمان...</p>
-    <p id="header-message" class="header-message">آیکون بالای سایت وضعیت فعلی آب‌وهوا را نشان می‌دهد (آفتابی، ابری، بارانی و...)</p>
+
+<header id="main-header">
+    <div id="header-weather-icon" style="font-size: 4rem;"></div>
+    <h1>هواشناسی هوشمند ایران 🇮🇷</h1>
+    <p id="live-clock">در حال دریافت زمان...</p>
 </header>
+
 <main class="container">
-    <section class="card selectors-section">
-        <div class="selector-group">
-            <label for="province-select">استان:</label>
-            <select id="province-select"><option value="">استان را انتخاب کنید</option></select>
-        </div>
-        <div class="selector-group">
-            <label for="city-select">شهر:</label>
-            <select id="city-select" disabled><option value="">شهر را انتخاب کنید</option></select>
-        </div>
+    <section class="card selectors">
+        <select id="province-select"><option value="">انتخاب استان</option></select>
+        <select id="city-select" disabled><option value="">انتخاب شهر</option></select>
     </section>
 
-    <section id="weather-info">
-        <div id="loading-spinner" class="spinner hidden"></div>
-        <div id="current-weather" class="card">
-            <h2><span id="current-city-title">وضعیت فعلی</span></h2>
-            <div class="weather-data-card" id="current-data">
-                <p>لطفاً یک استان و شهر را انتخاب کنید.</p>
-            </div>
+    <section id="weather-display" style="display:none">
+        <div class="card" style="text-align: center;">
+            <h2 id="city-title"></h2>
+            <div id="current-info"></div>
         </div>
-        <div id="forecast-section" class="card">
-            <h2>پیش‌بینی ۵ روزه</h2>
-            <div id="forecast"></div>
-        </div>
-    </section>
 
-    <section id="feedback-section" class="card">
-        <h2>فرم نظرات</h2>
-        <form id="feedback-form">
-            <div class="form-group">
-                <label for="feedback-name">نام:</label>
-                <input type="text" id="feedback-name" required>
-            </div>
-            <div class="form-group">
-                <label for="feedback-comment">نظر:</label>
-                <textarea id="feedback-comment" rows="4" required></textarea>
-            </div>
-            <button type="submit">ثبت نظر</button>
-        </form>
-        <h3>نظرات ثبت‌شده</h3>
-        <ul id="comments-list"></ul>
+        <div class="card">
+            <h3>پیش‌بینی ۵ روز آینده</h3>
+            <div id="forecast-list" class="forecast-grid"></div>
+        </div>
     </section>
 </main>
-<footer>
-    <p>ساخته شده توسط ابوالفضل شاهمیرزایی ❤️</p>
-    <p>&copy; ۱۴۰۴</p>
-    <p>سایت از API <a href="https://openweathermap.org/" target="_blank">OpenWeatherMap</a> استفاده می‌کند</p>
-</footer>
+
 <script>
     const API_KEY = 'bf8755006c2fc6e2762533c174860bf6';
+    
+    // لیست کامل استان‌ها و شهرها (برگرفته از فایل شما)
     const provinces = {
         "آذربایجان شرقی": ["تبریز","مراغه","مرند","اهر","میانه","بناب","شبستر","جلفا","سهند","سراب","هشترود","کلیبر","اسکو","بستان‌آباد","آذرشهر","هریس","عجب‌شیر","ورزقان","ملکان","قره‌آغاج","مبارک‌شهر","تسوج","خسروشاه","صوفیان","شرفخانه","ترکمنچای","باروق","لیلان","شهر جدید سهند"],
         "آذربایجان غربی": ["ارومیه","خوی","مهاباد","بوکان","میاندوآب","سلماس","پیرانشهر","نقده","شاهین‌دژ","سردشت","ماکو","تکاب","اشنویه","قره‌ضیاءالدین","چایپاره","پلدشت","شوط","سیروان","ربط","بازرگان","نوشین‌شهر","قوشچی","کرمانج","یولاگلدی","سیلوانا"],
@@ -508,479 +162,105 @@
         "همدان": ["همدان","ملایر","نهاوند","تویسرکان","اسدآباد","کبودراهنگ","بهار","رزن","فامنین","قروه درجزین","دمق","جوکار","ازندریان","سامن","جورقان","قهاوند"],
         "یزد": ["یزد","میبد","اردکان","تفت","بافق","ابرکوه","مهریز","اشکذر","هرات","شاهدیه","حمیدیا","زارچ","نیر","مروست","عقدا","بهاباد","احمدآباد","سایبان","خضرآباد","ندوشن"]
     };
-    const weatherBackgrounds = {
-        '01': 'bg-clear',
-        '02': 'bg-clouds',
-        '03': 'bg-clouds',
-        '04': 'bg-clouds',
-        '09': 'bg-rain',
-        '10': 'bg-rain',
-        '11': 'bg-thunderstorm',
-        '13': 'bg-snow',
-        '50': 'bg-mist'
-    };
-    const provinceSelect = document.getElementById('province-select');
-    const citySelect = document.getElementById('city-select');
-    const liveTimeElement = document.getElementById('live-time');
-    const header = document.querySelector('header');
-    const headerIcon = document.getElementById('header-icon');
-    const headerMessage = document.getElementById('header-message');
-    const currentData = document.getElementById('current-data');
-    const forecastDiv = document.getElementById('forecast');
-    const feedbackForm = document.getElementById('feedback-form');
-    const commentsList = document.getElementById('comments-list');
-    const currentCityTitle = document.getElementById('current-city-title');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const body = document.body;
 
-    // Rain effect setup
-    const rainContainer = document.createElement('div');
-    rainContainer.className = 'rain hidden';
-    document.body.appendChild(rainContainer);
+    // منطق زمان و تم (اصلاح شده)
+    function updateLiveUI(icon = '01d') {
+        const now = new Date();
+        const hour = now.getHours();
+        const isNight = icon.includes('n') || (hour < 6 || hour >= 19);
+        
+        const header = document.getElementById('main-header');
+        if (isNight) header.classList.add('night-mode');
+        else header.classList.remove('night-mode');
 
-    function createRaindrops() {
-        if (!rainContainer.classList.contains('hidden')) {
-            const drop = document.createElement('div');
-            drop.className = 'drop';
-            drop.style.left = `${Math.random() * 100}vw`;
-            drop.style.width = `${Math.random() * 2 + 1}px`;
-            drop.style.height = `${Math.random() * 40 + 20}px`;
-            drop.style.animationDuration = `${Math.random() * 1 + 0.5}s`;
-            drop.style.opacity = Math.random();
-            rainContainer.appendChild(drop);
-            setTimeout(() => drop.remove(), 1000); // Remove after animation
-        }
-    }
-
-    let rainInterval = null;
-
-    function startRainEffect() {
-        if (!rainInterval) {
-            rainContainer.classList.remove('hidden');
-            rainInterval = setInterval(createRaindrops, 50);
-        }
-    }
-
-    function stopRainEffect() {
-        if (rainInterval) {
-            clearInterval(rainInterval);
-            rainInterval = null;
-            rainContainer.classList.add('hidden');
-        }
-    }
-    
-    // --- اصلاح نهایی و مقاوم نمایش زمان ایران (IRST) ---
-
-    // تابع اصلی برای گرفتن زمان/تاریخ با منطقه زمانی ایران
-    function getIranTimeAccurate(options) {
-        // new Date().toLocaleString() تضمین می‌کند که timeZone اعمال شود.
-        return new Date().toLocaleString('fa-IR', {
-            timeZone: 'Asia/Tehran',
-            ...options
+        document.getElementById('live-clock').textContent = now.toLocaleString('fa-IR', {
+            weekday: 'long', hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
     }
 
-    function getIranHour() {
-        // گرفتن ساعت در قالب 24 ساعته (فقط عدد) با منطقه زمانی ایران
-        const hourString = new Date().toLocaleString('en-US', { 
-            hour: '2-digit', 
-            hour12: false, 
-            timeZone: 'Asia/Tehran' 
-        });
-        return parseInt(hourString);
-    }
-
-    function isDay() {
-        const hour = getIranHour();
-        // روز را بین ۶ صبح تا ۸ شب (۲۰) در نظر می‌گیریم.
-        return hour >= 6 && hour < 20;
-    }
-
-    function updateLiveTime() {
-        const status = isDay() ? "روز" : "شب";
-
-        // دریافت زمان و تاریخ کامل ایران با فرمت فارسی
-        const persianDateTime = getIranTimeAccurate({
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-
-        liveTimeElement.textContent = `اکنون ${status} است، ${persianDateTime}`;
-
-        if (isDay()) {
-            header.classList.remove('night-header');
-        } else {
-            header.classList.add('night-header');
+    // پر کردن لیست استان‌ها
+    function init() {
+        const pSelect = document.getElementById('province-select');
+        for (let p in provinces) {
+            let opt = document.createElement('option');
+            opt.value = p; opt.textContent = p;
+            pSelect.appendChild(opt);
         }
     }
 
-    setInterval(updateLiveTime, 1000);
-    updateLiveTime();
-    
-    // ------------------------------------
-
-    function getPersianDate(timestamp) {
-        const date = new Date(timestamp * 1000);
-        return date.toLocaleString('fa-IR', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            timeZone: 'Asia/Tehran'
-        });
-    }
-
-    function getPersianDay(timestamp) {
-        const date = new Date(timestamp * 1000);
-        return date.toLocaleString('fa-IR', {
-            weekday: 'long',
-            timeZone: 'Asia/Tehran'
-        });
-    }
-
-    function getWeatherIconClass(iconCode) {
-        const prefix = 'fa-';
-        let iconClass = '';
-        const dayNightCode = iconCode.slice(-1);
-
-        switch (iconCode.substring(0, 2)) {
-            case '01': // Clear sky
-                iconClass = (dayNightCode === 'd') ? 'sun' : 'moon';
-                break;
-            case '02': // Few clouds
-                iconClass = (dayNightCode === 'd') ? 'cloud-sun' : 'cloud-moon';
-                break;
-            case '03': // Scattered clouds
-            case '04': // Broken clouds, overcast clouds
-                iconClass = 'cloud';
-                break;
-            case '09': // Shower rain
-            case '10': // Rain
-                iconClass = (dayNightCode === 'd') ? 'cloud-sun-rain' : 'cloud-moon-rain';
-                break;
-            case '11': // Thunderstorm
-                iconClass = 'cloud-bolt';
-                break;
-            case '13': // Snow
-                iconClass = 'snowflake';
-                break;
-            case '50': // Mist
-                iconClass = 'smog';
-                break;
-            default:
-                iconClass = 'cloud';
-        }
-        return `${prefix}${iconClass}`;
-    }
-
-    function setDynamicBackground(iconCode) {
-        const bgClass = weatherBackgrounds[iconCode.substring(0, 2)] || 'bg-clear';
-        body.className = '';
-        body.classList.add(bgClass);
-
-        if (iconCode.substring(0, 2) === '09' || iconCode.substring(0, 2) === '10') {
-            startRainEffect();
-        } else {
-            stopRainEffect();
-        }
-    }
-
-    function getWindDirection(degrees) {
-        const directions = ["شمال", "شمال شرق", "شرق", "جنوب شرق", "جنوب", "جنوب غرب", "غرب", "شمال غرب"];
-        const index = Math.round(degrees / 45) % 8;
-        return directions[index];
-    }
-
-    function populateDropdowns() {
-        for (const province in provinces) {
-            const option = document.createElement('option');
-            option.value = province;
-            option.textContent = province;
-            provinceSelect.appendChild(option);
-        }
-
-        provinceSelect.addEventListener('change', () => {
-            const selectedProvince = provinceSelect.value;
-            citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
-            citySelect.disabled = !selectedProvince;
-            if (selectedProvince) {
-                const uniqueCities = [...new Set(provinces[selectedProvince])].sort();
-                uniqueCities.forEach(city => {
-                    const option = document.createElement('option');
-                    option.value = city;
-                    option.textContent = city;
-                    citySelect.appendChild(option);
-                });
-            }
-            clearWeatherDisplay();
-        });
-    }
-
-    citySelect.addEventListener('change', () => {
-        const selectedCity = citySelect.value;
-        if (selectedCity) {
-            currentCityTitle.innerHTML = `وضعیت فعلی در <span class="current-city-name">${selectedCity}</span>`;
-            fetchCoordinates(selectedCity);
-        } else {
-            clearWeatherDisplay();
+    document.getElementById('province-select').addEventListener('change', function() {
+        const cSelect = document.getElementById('city-select');
+        cSelect.innerHTML = '<option value="">انتخاب شهر</option>';
+        cSelect.disabled = !this.value;
+        if (this.value) {
+            provinces[this.value].forEach(c => {
+                let opt = document.createElement('option');
+                opt.value = c; opt.textContent = c;
+                cSelect.appendChild(opt);
+            });
         }
     });
 
-    function clearWeatherDisplay() {
-        currentCityTitle.innerHTML = 'وضعیت فعلی';
-        currentData.innerHTML = '<p>لطفاً یک استان و شهر را انتخاب کنید.</p>';
-        forecastDiv.innerHTML = '';
-        body.className = '';
-        stopRainEffect();
-        headerIcon.innerHTML = '';
-        headerMessage.style.display = 'none';
-    }
-
-    async function fetchCoordinates(city) {
-        loadingSpinner.classList.remove('hidden');
-        currentData.innerHTML = '';
-        forecastDiv.innerHTML = '';
-        const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city},IR&limit=1&appid=${API_KEY}`;
-        try {
-            const response = await fetch(geoUrl);
-            const data = await response.json();
-            if (data.length > 0) {
-                const { lat, lon } = data[0];
-                fetchWeather(lat, lon, city);
-            } else {
-                loadingSpinner.classList.add('hidden');
-                currentData.innerHTML = `<p>مختصات برای شهر "${city}" یافت نشد. لطفاً شهر دیگری را انتخاب کنید.</p>`;
-                forecastDiv.innerHTML = '';
-            }
-        } catch (error) {
-            loadingSpinner.classList.add('hidden');
-            currentData.innerHTML = `<p>خطا در دریافت مختصات: ${error.message}. لطفاً بعداً دوباره تلاش کنید.</p>`;
-            forecastDiv.innerHTML = '';
-            console.error('Error fetching coordinates:', error);
-        }
-    }
-
-    async function fetchWeather(lat, lon, cityName) {
-        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
-        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=fa`;
-
-        try {
-            const [weatherRes, forecastRes] = await Promise.all([
-                fetch(weatherUrl),
-                fetch(forecastUrl)
-            ]);
-
-            const weatherData = await weatherRes.json();
-            const forecastData = await forecastRes.json();
-
-            displayCurrentWeather(weatherData, cityName);
-            displayForecast(forecastData);
-
-        } catch (error) {
-            loadingSpinner.classList.add('hidden');
-            currentData.innerHTML = `<p>خطا در دریافت داده‌های هواشناسی: ${error.message}</p>`;
-            forecastDiv.innerHTML = '';
-            console.error('Error fetching weather data:', error);
-        }
-    }
-
-    function displayCurrentWeather(data, cityName) {
-        loadingSpinner.classList.add('hidden');
-        if (data.cod !== 200) {
-            currentData.innerHTML = `<p>خطا در دریافت داده برای شهر: ${cityName || 'نامشخص'}</p>`;
-            return;
-        }
-
-        const iconCode = data.weather[0].icon;
-        const fontAwesomeIconClass = getWeatherIconClass(iconCode);
-        const persianDate = getPersianDate(data.dt);
-        const description = data.weather[0].description;
-        // تبدیل متر بر ثانیه به کیلومتر بر ساعت
-        const windSpeedKmH = Math.round(data.wind.speed * 3.6); 
-        const windDirection = getWindDirection(data.wind.deg);
+    document.getElementById('city-select').addEventListener('change', async function() {
+        if (!this.value) return;
         
-        // استفاده از toLocaleString با timeZone برای نمایش دقیق زمان‌های طلوع و غروب ایران
-        const sunriseTime = new Date(data.sys.sunrise * 1000).toLocaleString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
-        const sunsetTime = new Date(data.sys.sunset * 1000).toLocaleString('fa-IR', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tehran' });
+        // دریافت مختصات و سپس هواشناسی
+        const geoReq = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${this.value},IR&limit=1&appid=${API_KEY}`);
+        const geoData = await geoReq.json();
+        
+        if (geoData.length > 0) {
+            const {lat, lon} = geoData[0];
+            const wReq = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=fa&appid=${API_KEY}`);
+            const fReq = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=fa&appid=${API_KEY}`);
+            
+            showWeather(await wReq.json(), this.value);
+            showForecast(await fReq.json());
+        }
+    });
 
-        setDynamicBackground(iconCode);
+    function showWeather(data, city) {
+        document.getElementById('weather-display').style.display = 'block';
+        document.getElementById('city-title').textContent = `هوای فعلی ${city}`;
+        updateLiveUI(data.weather[0].icon);
 
-        // Update header icon and show message
-        headerIcon.innerHTML = `<i class="fas ${fontAwesomeIconClass}"></i>`;
-        headerMessage.style.display = 'block';
-
-        currentData.innerHTML = `
-            <div class="weather-icon">
-                <i class="fas ${fontAwesomeIconClass}"></i>
+        document.getElementById('current-info').innerHTML = `
+            <div class="weather-icon"><i class="fas ${getIcon(data.weather[0].icon)}"></i></div>
+            <div class="temp-main">${Math.round(data.main.temp)}°C</div>
+            <p>وضعیت: <b>${data.weather[0].description}</b></p>
+            <div style="display:flex; justify-content:center; gap:20px;">
+                <span><i class="fas fa-tint"></i> رطوبت: ${data.main.humidity}%</span>
+                <span><i class="fas fa-wind"></i> باد: ${Math.round(data.wind.speed * 3.6)}km/h</span>
             </div>
-            <p><strong>تاریخ:</strong> ${persianDate}</p>
-            <p><strong><span class="temp-color">دما:</span></strong> ${Math.round(data.main.temp)}°C</p>
-            <p><strong><span class="feels-like-color">دمای محسوس:</span></strong> ${Math.round(data.main.feels_like)}°C</p>
-            <p><strong>وضعیت:</strong> ${description}</p>
-            <p><strong><span class="temp-min-max">حداقل/حداکثر دما:</span></strong> ${Math.round(data.main.temp_min)}°C / ${Math.round(data.main.temp_max)}°C</p>
-            <p><strong><span class="humidity-color"><i class="fas fa-tint"></i> رطوبت:</span></strong> ${data.main.humidity}%</p>
-            <p><strong><span class="wind-color"><i class="fas fa-wind"></i> سرعت باد:</span></strong> ${windSpeedKmH} km/h</p>
-            <p><strong><span class="wind-direction-color"><i class="fas fa-compass"></i> جهت باد:</span></strong> ${windDirection}</p>
-            <p><strong><span class="pressure-color"><i class="fas fa-arrow-down"></i> فشار هوا:</span></strong> ${data.main.pressure} hPa</p>
-            <p><strong><span class="sunrise-color"><i class="fas fa-sun"></i> طلوع آفتاب:</span></strong> ${sunriseTime}</p>
-            <p><strong><span class="sunset-color"><i class="fas fa-moon"></i> غروب آفتاب:</span></strong> ${sunsetTime}</p>
         `;
     }
 
-    function processForecastData(data) {
-        const dailyForecasts = {};
-        const today = new Date();
-        // تاریخ امروز را برای فیلتر کردن پیش‌بینی‌های قبلی تنظیم می‌کنیم
-        today.setHours(0, 0, 0, 0); 
+    function showForecast(data) {
+        const list = document.getElementById('forecast-list');
+        list.innerHTML = '';
         
-        // تابع برای استخراج کلید تاریخ شمسی برای گروه‌بندی
-        const getIranianDateKey = (timestamp) => {
-             return new Date(timestamp * 1000).toLocaleString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Tehran' });
-        };
-
-        data.list.forEach(item => {
-            const dateKey = getIranianDateKey(item.dt);
-            const itemDate = new Date(item.dt * 1000);
-            
-            // اگر تاریخ مربوط به امروز یا گذشته باشد، رد می‌شود
-            if (itemDate < today) return; 
-
-            if (!dailyForecasts[dateKey]) {
-                dailyForecasts[dateKey] = {
-                    temps: [],
-                    pop: [],
-                    icons: {},
-                    dt: item.dt
-                };
-            }
-            dailyForecasts[dateKey].temps.push(item.main.temp);
-            dailyForecasts[dateKey].pop.push(item.pop * 100);
-            
-            const iconCode = item.weather[0].icon.substring(0, 2);
-            if (!dailyForecasts[dateKey].icons[iconCode]) {
-                dailyForecasts[dateKey].icons[iconCode] = 0;
-            }
-            dailyForecasts[dateKey].icons[iconCode]++;
-        });
-
-        // تبدیل داده‌های جمع‌آوری شده به یک لیست نهایی
-        return Object.values(dailyForecasts).slice(0, 5).map(dayData => {
-            const minTemp = Math.round(Math.min(...dayData.temps));
-            const maxTemp = Math.round(Math.max(...dayData.temps));
-            const avgTemp = Math.round(dayData.temps.reduce((sum, t) => sum + t, 0) / dayData.temps.length);
-            // میانگین احتمال بارش را در نظر می‌گیریم
-            const avgPop = Math.round(dayData.pop.reduce((sum, p) => sum + p, 0) / dayData.pop.length);
-
-            // پیدا کردن رایج‌ترین آیکون
-            let mostFrequentIconCode = '';
-            let maxCount = 0;
-            for (const iconCode in dayData.icons) {
-                if (dayData.icons[iconCode] > maxCount) {
-                    maxCount = dayData.icons[iconCode];
-                    // انتخاب کد آیکون روز (d) به عنوان آیکون اصلی روز
-                    mostFrequentIconCode = iconCode + 'd'; 
-                }
-            }
-            
-            // پیدا کردن توضیحات مربوط به آیکون انتخاب شده
-            const descriptionItem = data.list.find(item => item.weather[0].icon.substring(0, 2) + 'd' === mostFrequentIconCode);
-            const description = descriptionItem ? descriptionItem.weather[0].description : 'نامشخص';
-
-            return {
-                dayOfWeek: getPersianDay(dayData.dt),
-                persianDate: new Date(dayData.dt * 1000).toLocaleString('fa-IR', { month: 'short', day: 'numeric', timeZone: 'Asia/Tehran' }),
-                minTemp,
-                maxTemp,
-                avgTemp,
-                avgPop,
-                iconCode: mostFrequentIconCode,
-                description
-            };
-        });
-    }
-
-    function displayForecast(data) {
-        forecastDiv.innerHTML = '';
-        if (data.list.length === 0) {
-            forecastDiv.innerHTML = '<p>اطلاعات پیش‌بینی برای این شهر موجود نیست.</p>';
-            return;
-        }
-
-        const processedData = processForecastData(data);
-
-        processedData.forEach(day => {
-            const fontAwesomeIconClass = getWeatherIconClass(day.iconCode);
-            
-            const forecastCard = document.createElement('div');
-            forecastCard.className = 'forecast-card';
-            forecastCard.innerHTML = `
-                <h4>${day.dayOfWeek}، ${day.persianDate}</h4>
-                <div class="weather-icon"><i class="fas ${fontAwesomeIconClass}"></i></div>
-                <p><strong><span class="temp-color">متوسط دما:</span></strong> ${day.avgTemp}°C</p>
-                <p class="temp-min-max">
-                    <strong><i class="fas fa-arrow-down"></i> حداقل:</strong> <span>${day.minTemp}°C</span>
-                </p>
-                <p class="temp-min-max">
-                    <strong><i class="fas fa-arrow-up"></i> حداکده:</strong> <span>${day.maxTemp}°C</span>
-                </p>
-                <p><strong>وضعیت:</strong> ${day.description}</p>
-                <p><strong><span class="pop-color">احتمال بارش:</span></strong> ${day.avgPop}%</p>
+        // فیلتر کردن برای ۵ روز (یک داده در هر ۲۴ ساعت)
+        const daily = data.list.filter((f, i) => i % 8 === 0).slice(0, 5);
+        
+        daily.forEach(day => {
+            const date = new Date(day.dt * 1000).toLocaleString('fa-IR', {weekday: 'long'});
+            list.innerHTML += `
+                <div class="forecast-item">
+                    <h4>${date}</h4>
+                    <div style="font-size:2rem; color:var(--primary)"><i class="fas ${getIcon(day.weather[0].icon)}"></i></div>
+                    <div style="font-weight:bold; color:#d32f2f; margin:10px 0;">${Math.round(day.main.temp)}°C</div>
+                    <div style="font-size:0.8rem">${day.weather[0].description}</div>
+                </div>
             `;
-            forecastDiv.appendChild(forecastCard);
         });
     }
 
-    // --- مدیریت فرم نظرات ---
-
-    function loadComments() {
-        // نظرات از حافظه مرورگر بارگیری می‌شوند (localStorage)
-        const comments = JSON.parse(localStorage.getItem('weatherComments') || '[]');
-        commentsList.innerHTML = '';
-        comments.forEach(comment => {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${comment.name}</strong> (${comment.date}): ${comment.comment}`;
-            commentsList.appendChild(li);
-        });
+    function getIcon(code) {
+        const map = {'01':'sun','02':'cloud-sun','03':'cloud','04':'cloud','09':'cloud-showers-heavy','10':'cloud-rain','11':'bolt','13':'snowflake','50':'smog'};
+        return 'fa-' + (map[code.substring(0,2)] || 'cloud');
     }
 
-    feedbackForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const nameInput = document.getElementById('feedback-name');
-        const commentInput = document.getElementById('feedback-comment');
-        
-        const newComment = {
-            name: nameInput.value,
-            comment: commentInput.value,
-            // ثبت تاریخ و زمان با منطقه زمانی ایران
-            date: new Date().toLocaleString('fa-IR', { 
-                year: 'numeric', 
-                month: '2-digit', 
-                day: '2-digit', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                timeZone: 'Asia/Tehran'
-            })
-        };
-
-        const comments = JSON.parse(localStorage.getItem('weatherComments') || '[]');
-        comments.push(newComment);
-        localStorage.setItem('weatherComments', JSON.stringify(comments));
-
-        nameInput.value = '';
-        commentInput.value = '';
-        loadComments();
-    });
-
-    // --- اجرای اولیه ---
-
-    populateDropdowns();
-    loadComments();
+    setInterval(updateLiveUI, 1000);
+    init();
 </script>
 </body>
 </html>
